@@ -1,0 +1,11 @@
+node_modules/
+dist/
+coverage/
+.env
+.env.*
+.DS_Store
+npm-debug.log*
+pnpm-debug.log*
+vite.config.ts.timestamp-*
+.vitest
+.dist
