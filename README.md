@@ -14,6 +14,18 @@ Type-safe Node.js client for the [Astrology API v3.0.0](https://api.astrology-ap
 npm install @procoders/astrology-api-client
 ```
 
+### Usage
+
+#### ES Modules
+```ts
+import { AstrologyClient } from '@procoders/astrology-api-client';
+```
+
+#### CommonJS
+```js
+const { AstrologyClient } = require('@procoders/astrology-api-client');
+```
+
 ### Environment Variables
 | Variable | Required | Description |
 | --- | --- | --- |
@@ -113,7 +125,7 @@ Pass `debug: true` and optionally supply a custom `logger` function. Setting `AS
 npm run lint            # ESLint with @typescript-eslint + Prettier
 npm run test            # Vitest watch mode
 npm run test:coverage   # Vitest with V8 coverage (enforced at 100 %)
-npm run build           # TypeScript build (emits ESM to dist/)
+npm run build           # tsup build emitting ESM (.js) + CJS (.cjs)
 ```
 
 ### Project Structure
