@@ -1,7 +1,7 @@
 import type { components } from './generated/api';
 import type {
   ActivePointType,
-  KeywordCategory,
+  KeywordsCategory,
   LifeAreasLanguage,
   Subject,
 } from './requests';
@@ -149,7 +149,7 @@ export interface SynastryReportResponse {
 export interface ActivePoint {
   id: string;
   description: string;
-  type: string;
+  type: ActivePointType;
   strength?: number | null;
   [key: string]: unknown;
 }
@@ -232,7 +232,7 @@ export interface AvailableHouseSystem {
 }
 
 export interface HousesResponse {
-  house_system?: string;
+  house_system: string;
   houses: HouseInfo[];
   available_systems?: AvailableHouseSystem[];
   [key: string]: unknown;
@@ -247,7 +247,7 @@ export interface KeywordCollection {
 }
 
 export interface KeywordsResponse {
-  category: string;
+  category: KeywordsCategory;
   total_concepts?: number;
   keywords: KeywordCollection[];
   [key: string]: unknown;
@@ -270,7 +270,7 @@ export interface LifeArea {
   description: string;
   keywords?: string[];
   category?: string;
-  emoji?: string;
+  emoji?: string | null;
   primary_planets?: string[];
   secondary_planets?: string[];
   primary_houses?: number[];
@@ -281,8 +281,8 @@ export interface LifeArea {
 }
 
 export interface LifeAreasResponse {
-  language: string;
-  total_areas?: number;
+  language: LifeAreasLanguage;
+  total_areas: number;
   life_areas: LifeArea[];
   [key: string]: unknown;
 }
@@ -402,85 +402,18 @@ export interface PaginatedResponse<T> {
   offset: number;
 }
 
-export interface ActivePoint {
-  id: string;
-  description: string;
-  type: ActivePointType;
-  strength?: number;
-}
-
-export interface CountryInfo {
-  name: string;
-  iso: string;
-  capital?: string | null;
-  population?: number | null;
-  continent?: string | null;
-  currency?: string | null;
-}
+export type CountryInfo = CountryReference;
 
 export interface GlossaryItem {
   id: string;
   description: string;
 }
 
-export interface HouseSystemInfo {
-  code: string;
-  name: string;
-  description?: string;
-  category?: string;
-  usage?: string;
-  is_default?: boolean;
-}
+export type HouseSystemInfo = AvailableHouseSystem;
 
-export interface HouseInfo {
-  number: number;
-  name: string;
-  themes?: string[];
-  primary_theme?: string | null;
-  life_areas?: string[];
-  traditional_meaning?: string;
-  modern_keywords?: string[];
-}
+export type KeywordEntry = KeywordCollection;
 
-export interface HousesResponse {
-  house_system: string;
-  houses: HouseInfo[];
-  available_systems?: HouseSystemInfo[];
-}
-
-export interface KeywordEntry {
-  id: string;
-  name: string;
-  keywords: string[];
-  total_keywords?: number;
-}
-
-export interface KeywordsResponse {
-  category: KeywordCategory;
-  total_concepts?: number;
-  keywords: KeywordEntry[];
-}
-
-export interface LifeAreaDetails {
-  id: string;
-  name: string;
-  description: string;
-  keywords?: string[];
-  category?: string;
-  emoji?: string | null;
-  primary_planets?: string[];
-  secondary_planets?: string[];
-  primary_houses?: number[];
-  secondary_houses?: number[];
-  preferred_lines?: string[];
-  strength_weight?: number;
-}
-
-export interface LifeAreasResponse {
-  language: LifeAreasLanguage;
-  total_areas: number;
-  life_areas: LifeAreaDetails[];
-}
+export type LifeAreaDetails = LifeArea;
 
 export type EnhancedPlanetaryPosition = Schemas['EnhancedPlanetaryPosition'];
 

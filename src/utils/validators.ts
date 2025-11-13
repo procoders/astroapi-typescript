@@ -28,6 +28,7 @@ import {
   DirectionReportRequest,
   DirectionType,
   DrawCardsRequest,
+  ElementalDignitiesRequest,
   CryptoTimingRequest,
   ForexTimingRequest,
   FixedStarsConjunctionsRequest,
@@ -103,6 +104,7 @@ import {
   TarotNatalReportRequest,
   TarotReportRequest,
   TarotTransitReportRequest,
+  TreeOfLifeRequest,
   TextHoroscopeRequest,
   TextMonthlyHoroscopeRequest,
   TextWeeklyHoroscopeRequest,
@@ -480,12 +482,12 @@ const validateChineseSubject = (subject: ChineseHoroscopeSubject | ChineseSubjec
   ensureIntegerInRange(birthData.minute ?? null, [0, 59], `${context}.birth_data.minute`);
   ensureIntegerInRange((birthData as { second?: number | null }).second ?? null, [0, 59], `${context}.birth_data.second`);
 
-  if (birthData.latitude !== undefined) {
-    ensureNumberInRange(birthData.latitude ?? null, [-90, 90], `${context}.birth_data.latitude`);
+  if ('latitude' in birthData && birthData.latitude !== undefined) {
+    ensureNumberInRange((birthData.latitude as number | null) ?? null, [-90, 90], `${context}.birth_data.latitude`);
   }
 
-  if (birthData.longitude !== undefined) {
-    ensureNumberInRange(birthData.longitude ?? null, [-180, 180], `${context}.birth_data.longitude`);
+  if ('longitude' in birthData && birthData.longitude !== undefined) {
+    ensureNumberInRange((birthData.longitude as number | null) ?? null, [-180, 180], `${context}.birth_data.longitude`);
   }
 
   const gender = extractChineseGender(subject);
@@ -1539,7 +1541,10 @@ const validateBusinessOptions = (
   }
 
   if ('departments' in opts) {
-    validateDepartments(opts.departments as BusinessMultipleRequest['options']['departments'], subjectCount, `${context}.departments`);
+    const { departments } = opts as {
+      departments?: NonNullable<BusinessMultipleRequest['options']>['departments'] | null;
+    };
+    validateDepartments(departments ?? null, subjectCount, `${context}.departments`);
   }
 };
 
@@ -1682,10 +1687,16 @@ export const validatePersonalTradingRequest = (
 
   const options = extractOptionsObject(request.options ?? null);
   if (options) {
-    validateAnalysisDays(options.analysis_period_days ?? null, `${context}.options.analysis_period_days`);
-    ensureOptionalBoolean(options.include_lunar_cycles, `${context}.options.include_lunar_cycles`);
-    normalizeTradingStyle(options.trading_style as string | undefined, `${context}.options.trading_style`);
-    validateLanguageValue(options.language as string | undefined, `${context}.options.language`);
+    const typedOptions = options as {
+      analysis_period_days?: number | null;
+      include_lunar_cycles?: boolean | null;
+      trading_style?: string | null;
+      language?: string | null;
+    };
+    validateAnalysisDays(typedOptions.analysis_period_days ?? null, `${context}.options.analysis_period_days`);
+    ensureOptionalBoolean(typedOptions.include_lunar_cycles, `${context}.options.include_lunar_cycles`);
+    normalizeTradingStyle(typedOptions.trading_style, `${context}.options.trading_style`);
+    validateLanguageValue(typedOptions.language, `${context}.options.language`);
   }
 };
 
@@ -1962,8 +1973,10 @@ export const validateElementalDignitiesRequest = (
     throw new AstrologyError(`${context}.cards must include at least one entry.`);
   }
 
-  request.cards.forEach((card, index) => {
-    if (!card || typeof card !== 'object') {
+  const cards = request.cards as Array<NonNullable<ElementalDignitiesRequest['cards']>[number]>;
+
+  cards.forEach((card, index) => {
+    if (!card || typeof card !== 'object' || Array.isArray(card)) {
       throw new AstrologyError(`${context}.cards[${index}] must be an object.`);
     }
 

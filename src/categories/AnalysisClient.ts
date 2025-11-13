@@ -3,6 +3,7 @@ import type { AxiosRequestConfig } from 'axios';
 import {
   CompatibilityRequest,
   CompositeReportRequest,
+  DirectionReportRequest,
   LunarAnalysisRequest,
   LunarReturnReportRequest,
   LunarReturnTransitRequest,

@@ -134,12 +134,14 @@ export type ActivePointType =
   | 'asteroid'
   | 'fixed-star';
 
+export type PrimaryActivePointType = Exclude<ActivePointType, 'fixed-star'>;
+
 export interface ActivePointsQuery {
   type?: ActivePointType;
 }
 
 export interface PrimaryActivePointsQuery {
-  type?: Exclude<ActivePointType, 'fixed-star'>;
+  type?: PrimaryActivePointType;
 }
 
 export interface HousesRequest {
@@ -512,34 +514,6 @@ export interface PersonalTradingRequest {
   include_lunar_cycles?: boolean | null;
   trading_style?: string | null;
   language?: Language | null;
-}
-
-export type ActivePointType = 'planet' | 'lunar-node' | 'angle' | 'special-point' | 'asteroid' | 'fixed-star';
-
-export interface ActivePointsQuery {
-  type?: ActivePointType;
-}
-
-export type PrimaryActivePointType = Exclude<ActivePointType, 'fixed-star'>;
-
-export interface PrimaryActivePointsQuery {
-  type?: PrimaryActivePointType;
-}
-
-export interface HousesRequest {
-  house_system?: HouseSystem;
-}
-
-export type KeywordsCategory = 'planets' | 'lines' | 'houses' | 'aspects' | 'themes';
-
-export interface KeywordsRequest {
-  category?: KeywordsCategory;
-}
-
-export type LifeAreasLanguage = 'en' | 'de' | 'fr' | 'es' | 'ru';
-
-export interface LifeAreasRequest {
-  language?: LifeAreasLanguage;
 }
 
 export interface ProgressionReportRequest extends ProgressionRequest {

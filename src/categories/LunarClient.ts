@@ -25,9 +25,9 @@ import {
 } from '../utils/validators';
 import { BaseCategoryClient } from './BaseCategoryClient';
 
-const mergeConfigWithParams = (
+const mergeConfigWithParams = <T extends object>(
   config: AxiosRequestConfig | undefined,
-  params?: Record<string, unknown>,
+  params?: T,
 ): AxiosRequestConfig | undefined => {
   if (!params || Object.keys(params).length === 0) {
     return config;
