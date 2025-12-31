@@ -1,0 +1,44 @@
+## Project Overview
+- Package: `@procoders/astrology-api-client`
+- Purpose: TypeScript SDK for https://api.astrology-api.io (OpenAPI spec saved in `docs-openapi.json`)
+- Runtime: Node.js (ES modules)
+- HTTP layer: Axios with request/response interceptors, automatic retry logic, strict validation
+- Tests: Vitest with 100% coverage enforced (`npm run test:coverage`)
+
+## Directory Layout
+- `src/client.ts` — core client implementation
+- `src/types/` — strongly typed configs, requests, and responses
+- `src/errors/` — custom error hierarchy (`AstrologyError`)
+- `src/utils/validators.ts` — runtime validation helpers used prior to network calls
+- `tests/` — unit tests with axios-mock-adapter (keep coverage at 100%)
+- `examples/usage.ts` — sample usage (guarded by `RUN_ASTROLOGY_EXAMPLE` flag)
+- `docs-openapi.json` — locally cached OpenAPI v3 spec (use for type references)
+
+## Coding Guidelines
+- Always prefer type-safe solutions; keep files in strict TypeScript.
+- Keep code DRY, KISS, and single-responsibility. Extract helpers if logic repeats.
+- Comments, docs, and logs MUST be written in English.
+- When adding HTTP endpoints ensure:
+  - URL assembled via RapidAPI base URL (default from `DEFAULT_RAPIDAPI_HOST`)
+  - RapidAPI headers are set (`x-rapidapi-key`, `x-rapidapi-host`)
+  - Environment variables: `RAPIDAPI_KEY`, `RAPIDAPI_HOST`, `ASTROLOGY_API_BASE_URL`
+  - Payload validated via `validators.ts`.
+- For additions touching API schema, consult `docs-openapi.json` first.
+- Update or add Vitest suites and maintain 100% coverage. Use axios-mock-adapter for HTTP mocks.
+- Run `npm run lint` and `npm run test:coverage` before completion.
+
+## Documentation & Examples
+- README must show installation, configuration, environment variables, and code snippets.
+- When adding examples, wrap network calls with environment checks so examples do not run by default.
+
+## Tooling
+- ESLint + Prettier already configured; match formatting in existing files.
+- Coverage enforced in `vitest.config.ts`. If coverage drops, add tests instead of raising thresholds.
+
+## PR / Commit Checklist
+1. Update relevant types in `src/types/`.
+2. Keep public API exported via `src/index.ts`.
+3. Add/adjust tests to maintain 100% coverage.
+4. Document new features in README.
+5. Ensure `.cursorrules` stays aligned with architecture changes.
+

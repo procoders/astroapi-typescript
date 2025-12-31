@@ -1,0 +1,84 @@
+{
+  "name": "@procoders/astrology-api-client",
+  "version": "0.1.0",
+  "description": "TypeScript SDK for interacting with the Astrology API.",
+  "keywords": [
+    "astrology",
+    "api",
+    "sdk",
+    "typescript",
+    "axios"
+  ],
+  "author": "Procoders <dev@procoders.tech>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/procoders/astrology-typescript.git"
+  },
+  "bugs": {
+    "url": "https://github.com/procoders/astrology-typescript/issues"
+  },
+  "homepage": "https://github.com/procoders/astrology-typescript#readme",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "build:watch": "tsup --watch",
+    "clean": "rimraf dist",
+    "lint": "eslint \"src/**/*.{ts,tsx}\"",
+    "lint:fix": "eslint \"src/**/*.{ts,tsx}\" --fix",
+    "format": "prettier --write \"**/*.{ts,tsx,js,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,json,md}\"",
+    "test": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:watch": "vitest watch",
+    "generate:types": "openapi-typescript docs-openapi.json --output ./src/types/generated/api.ts --export-type",
+    "prepublishOnly": "npm run clean && npm run lint && npm run test:coverage && npm run build",
+    "prepare": "husky"
+  },
+  "dependencies": {
+    "axios": "1.13.2"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^20.1.0",
+    "@commitlint/config-conventional": "^20.0.0",
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/git": "^10.0.1",
+    "@types/node": "24.10.0",
+    "@typescript-eslint/eslint-plugin": "8.46.4",
+    "@typescript-eslint/parser": "8.46.4",
+    "@vitest/coverage-v8": "4.0.8",
+    "axios-mock-adapter": "2.1.0",
+    "eslint": "9.39.1",
+    "eslint-config-prettier": "10.1.8",
+    "husky": "^9.1.7",
+    "openapi-typescript": "7.10.1",
+    "prettier": "3.6.2",
+    "rimraf": "6.1.0",
+    "semantic-release": "^25.0.2",
+    "tsup": "^8.5.1",
+    "typescript": "5.9.3",
+    "typescript-eslint": "^8.46.4",
+    "vitest": "4.0.8"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}
