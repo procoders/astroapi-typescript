@@ -1,5 +1,5 @@
-import axios from 'axios';
-import MockAdapter from 'axios-mock-adapter';
+
+
 
 import { EnhancedClient } from '../../../src/categories/EnhancedClient';
 import { AstrologyError } from '../../../src/errors/AstrologyError';
@@ -10,9 +10,9 @@ import type {
   Subject,
 } from '../../../src/types';
 import type { GlobalAnalysisResponse, PersonalAnalysisResponse } from '../../../src/types/responses';
-import { AxiosHttpHelper } from '../../../src/utils/http';
+import { createTestHttpHelper } from '../../utils/testHelpers';
+import { mockFetch } from '../../utils/mockFetch';
 
-type HttpHelperWithMock = { helper: AxiosHttpHelper; mock: MockAdapter };
 
 const createSubject = (overrides: Partial<Subject> = {}): Subject => ({
   name: 'Test Subject',
@@ -83,46 +83,25 @@ const createPersonalRequest = (
   ...overrides,
 });
 
-const createHttpHelper = (): HttpHelperWithMock => {
-  const axiosInstance = axios.create();
-  const mock = new MockAdapter(axiosInstance);
-  const helper = new AxiosHttpHelper(
-    axiosInstance,
-    <T>(payload: unknown): T => {
-      if (payload && typeof payload === 'object') {
-        const record = payload as Record<string, unknown>;
-        if (record.data !== undefined) {
-          return record.data as T;
-        }
-        if (record.result !== undefined) {
-          return record.result as T;
-        }
-      }
-      return payload as T;
-    },
-  );
-
-  return { helper, mock };
-};
 
 describe('EnhancedClient', () => {
   let client: EnhancedClient;
-  let mock: MockAdapter;
+  
 
   beforeEach(() => {
-    const { helper, mock: axiosMock } = createHttpHelper();
+    const helper = createTestHttpHelper();
     client = new EnhancedClient(helper);
-    mock = axiosMock;
+    
   });
 
   afterEach(() => {
-    mock.reset();
+    mockFetch.reset();
   });
 
   it('retrieves global analysis', async () => {
     const request = createGlobalRequest();
     const response = { metadata: {}, planets: [], aspects: [], fixed_stars: [], lunar_phase: {} } as unknown as GlobalAnalysisResponse;
-    mock.onPost('/api/v3/enhanced/global-analysis').reply(200, { data: response });
+    mockFetch.onPost('/api/v3/enhanced/global-analysis').reply(200, { data: response });
 
     await expect(client.getGlobalAnalysis(request)).resolves.toEqual(response);
   });
@@ -151,7 +130,7 @@ describe('EnhancedClient', () => {
       lunar_phase: {},
       chronocrator: {},
     } as unknown as PersonalAnalysisResponse;
-    mock.onPost('/api/v3/enhanced/personal-analysis').reply(200, { data: response });
+    mockFetch.onPost('/api/v3/enhanced/personal-analysis').reply(200, { data: response });
 
     await expect(client.getPersonalAnalysis(request)).resolves.toEqual(response);
   });
@@ -165,7 +144,7 @@ describe('EnhancedClient', () => {
   it('retrieves global analysis charts endpoint', async () => {
     const request = createGlobalRequest();
     const response = { metadata: {}, planets: [], aspects: [], fixed_stars: [], lunar_phase: {} } as unknown as GlobalAnalysisResponse;
-    mock.onPost('/api/v3/enhanced_charts/global-analysis').reply(200, { data: response });
+    mockFetch.onPost('/api/v3/enhanced_charts/global-analysis').reply(200, { data: response });
 
     await expect(client.getGlobalAnalysisChart(request)).resolves.toEqual(response);
   });
@@ -182,7 +161,7 @@ describe('EnhancedClient', () => {
       lunar_phase: {},
       chronocrator: {},
     } as unknown as PersonalAnalysisResponse;
-    mock.onPost('/api/v3/enhanced_charts/personal-analysis').reply(200, { data: response });
+    mockFetch.onPost('/api/v3/enhanced_charts/personal-analysis').reply(200, { data: response });
 
     await expect(client.getPersonalAnalysisChart(request)).resolves.toEqual(response);
   });

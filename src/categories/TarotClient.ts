@@ -1,4 +1,4 @@
-import type { AxiosRequestConfig } from 'axios';
+import type { RequestConfig } from '../types/config';
 
 import {
   BirthCardFlexibleRequest,
@@ -53,9 +53,9 @@ import {
 import { BaseCategoryClient } from './BaseCategoryClient';
 
 const mergeConfigWithParams = <T extends object>(
-  config: AxiosRequestConfig | undefined,
+  config: RequestConfig | undefined,
   params?: T | null,
-): AxiosRequestConfig | undefined => {
+): RequestConfig | undefined => {
   if (!params || Object.keys(params).length === 0) {
     return config;
   }
@@ -78,18 +78,18 @@ export class TarotClient extends BaseCategoryClient {
 
   async getCardsGlossary(
     params?: TarotGlossaryParams,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<TarotGlossaryResponse> {
     const validated = validateTarotGlossaryParams(params);
     const requestConfig = mergeConfigWithParams(config, validated ?? undefined);
     return this.http.get<TarotGlossaryResponse>(this.buildUrl('glossary', 'cards'), requestConfig);
   }
 
-  async getSpreadsGlossary(config?: AxiosRequestConfig): Promise<TarotGlossaryResponse> {
+  async getSpreadsGlossary(config?: RequestConfig): Promise<TarotGlossaryResponse> {
     return this.http.get<TarotGlossaryResponse>(this.buildUrl('glossary', 'spreads'), config);
   }
 
-  async getCardDetails(cardId: string, config?: AxiosRequestConfig): Promise<TarotCardDetailResponse> {
+  async getCardDetails(cardId: string, config?: RequestConfig): Promise<TarotCardDetailResponse> {
     const normalizedId = validateTarotCardId(cardId, 'cardId');
     return this.http.get<TarotCardDetailResponse>(
       this.buildUrl('glossary', 'cards', encodeURIComponent(normalizedId)),
@@ -97,7 +97,7 @@ export class TarotClient extends BaseCategoryClient {
     );
   }
 
-  async drawCards(request: DrawCardsRequest, config?: AxiosRequestConfig): Promise<TarotDrawResponse> {
+  async drawCards(request: DrawCardsRequest, config?: RequestConfig): Promise<TarotDrawResponse> {
     validateDrawCardsRequest(request);
     return this.http.post<DrawCardsRequest, TarotDrawResponse>(
       this.buildUrl('cards', 'draw'),
@@ -108,14 +108,14 @@ export class TarotClient extends BaseCategoryClient {
 
   async searchCards(
     params?: TarotCardSearchParams,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<TarotCardSearchResponse> {
     const validated = validateTarotCardSearchParams(params);
     const requestConfig = mergeConfigWithParams(config, validated ?? undefined);
     return this.http.get<TarotCardSearchResponse>(this.buildUrl('cards', 'search'), requestConfig);
   }
 
-  async getDailyCard(params: DailyCardParams, config?: AxiosRequestConfig): Promise<TarotDailyCardResponse> {
+  async getDailyCard(params: DailyCardParams, config?: RequestConfig): Promise<TarotDailyCardResponse> {
     const validated = validateDailyCardParams(params);
     const requestConfig = mergeConfigWithParams(config, validated);
     return this.http.get<TarotDailyCardResponse>(this.buildUrl('reports', 'daily'), requestConfig);
@@ -123,7 +123,7 @@ export class TarotClient extends BaseCategoryClient {
 
   async generateSingleReport(
     request: TarotReportRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<TarotReportResponse> {
     validateTarotReportRequest(request, 'single');
     return this.http.post<TarotReportRequest, TarotReportResponse>(
@@ -135,7 +135,7 @@ export class TarotClient extends BaseCategoryClient {
 
   async generateThreeCardReport(
     request: TarotReportRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<TarotReportResponse> {
     validateTarotReportRequest(request, 'three_card');
     return this.http.post<TarotReportRequest, TarotReportResponse>(
@@ -147,7 +147,7 @@ export class TarotClient extends BaseCategoryClient {
 
   async generateCelticCrossReport(
     request: TarotReportRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<TarotReportResponse> {
     validateTarotReportRequest(request, 'celtic_cross');
     return this.http.post<TarotReportRequest, TarotReportResponse>(
@@ -159,7 +159,7 @@ export class TarotClient extends BaseCategoryClient {
 
   async generateSynastryReport(
     request: TarotReportRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<TarotSynastryReportResponse> {
     validateTarotSynastryReportRequest(request);
     return this.http.post<TarotReportRequest, TarotSynastryReportResponse>(
@@ -171,7 +171,7 @@ export class TarotClient extends BaseCategoryClient {
 
   async generateHousesReport(
     request: TarotReportRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<TarotReportResponse> {
     validateTarotReportRequest(request, 'houses');
     return this.http.post<TarotReportRequest, TarotReportResponse>(
@@ -183,7 +183,7 @@ export class TarotClient extends BaseCategoryClient {
 
   async generateTreeOfLifeReport(
     request: TreeOfLifeRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<TreeOfLifeResponse> {
     validateTreeOfLifeRequest(request);
     return this.http.post<TreeOfLifeRequest, TreeOfLifeResponse>(
@@ -195,7 +195,7 @@ export class TarotClient extends BaseCategoryClient {
 
   async calculateQuintessence(
     request: QuintessenceRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<QuintessenceResponse> {
     validateQuintessenceRequest(request);
     return this.http.post<QuintessenceRequest, QuintessenceResponse>(
@@ -207,7 +207,7 @@ export class TarotClient extends BaseCategoryClient {
 
   async calculateBirthCards(
     request: BirthCardFlexibleRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<BirthCardResponse> {
     validateBirthCardFlexibleRequest(request);
     return this.http.post<BirthCardFlexibleRequest, BirthCardResponse>(
@@ -219,7 +219,7 @@ export class TarotClient extends BaseCategoryClient {
 
   async calculateElementalDignities(
     request: ElementalDignitiesRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<ElementalDignitiesResponse> {
     validateElementalDignitiesRequest(request);
     return this.http.post<ElementalDignitiesRequest, ElementalDignitiesResponse>(
@@ -231,7 +231,7 @@ export class TarotClient extends BaseCategoryClient {
 
   async analyzeTiming(
     request: TimingAnalysisRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<TimingAnalysisResponse> {
     validateTimingAnalysisRequest(request);
     return this.http.post<TimingAnalysisRequest, TimingAnalysisResponse>(
@@ -243,7 +243,7 @@ export class TarotClient extends BaseCategoryClient {
 
   async calculateOptimalTimes(
     request: OptimalTimesRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<OptimalTimesResponse> {
     validateOptimalTimesRequest(request);
     return this.http.post<OptimalTimesRequest, OptimalTimesResponse>(
@@ -255,7 +255,7 @@ export class TarotClient extends BaseCategoryClient {
 
   async generateTransitReport(
     request: TarotTransitReportRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<TarotTransitReportResponse> {
     validateTarotTransitReportRequest(request);
     return this.http.post<TarotTransitReportRequest, TarotTransitReportResponse>(
@@ -267,7 +267,7 @@ export class TarotClient extends BaseCategoryClient {
 
   async generateNatalReport(
     request: TarotNatalReportRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<TarotNatalReportResponse> {
     validateTarotNatalReportRequest(request);
     return this.http.post<TarotNatalReportRequest, TarotNatalReportResponse>(

@@ -1,4 +1,4 @@
-import type { AxiosRequestConfig } from 'axios';
+import type { RequestConfig } from '../types/config';
 
 import {
   BradleySiderographRequest,
@@ -70,7 +70,7 @@ export class InsightsClient extends BaseCategoryClient {
     this.business = new BusinessInsightsClient(http);
   }
 
-  async discover(config?: AxiosRequestConfig): Promise<InsightsResponse> {
+  async discover(config?: RequestConfig): Promise<InsightsResponse> {
     return this.http.get<InsightsResponse>(this.buildUrl(), config);
   }
 }
@@ -84,7 +84,7 @@ class RelationshipInsightsClient extends BaseCategoryClient {
 
   async getCompatibility(
     request: CompatibilityRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<InsightsResponse> {
     validateCompatibilityRequest(request, 'RelationshipCompatibilityRequest');
     return this.http.post<CompatibilityRequest, InsightsResponse>(
@@ -96,7 +96,7 @@ class RelationshipInsightsClient extends BaseCategoryClient {
 
   async getCompatibilityScore(
     request: MultipleSubjectsRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<InsightsResponse> {
     validateMultipleSubjectsRequest(request, 'RelationshipCompatibilityScoreRequest', 2, 2);
     return this.http.post<MultipleSubjectsRequest, InsightsResponse>(
@@ -108,7 +108,7 @@ class RelationshipInsightsClient extends BaseCategoryClient {
 
   async getLoveLanguages(
     request: SingleSubjectRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<InsightsResponse> {
     validateSingleSubjectRequest(request, 'RelationshipLoveLanguagesRequest');
     return this.http.post<SingleSubjectRequest, InsightsResponse>(
@@ -120,7 +120,7 @@ class RelationshipInsightsClient extends BaseCategoryClient {
 
   async getDavisonReport(
     request: MultipleSubjectsRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<InsightsResponse> {
     validateMultipleSubjectsRequest(request, 'RelationshipDavisonRequest', 2, 2);
     return this.http.post<MultipleSubjectsRequest, InsightsResponse>(
@@ -132,7 +132,7 @@ class RelationshipInsightsClient extends BaseCategoryClient {
 
   async getTiming(
     request: CompatibilityRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<InsightsResponse> {
     validateCompatibilityRequest(request, 'RelationshipTimingRequest');
     return this.http.post<CompatibilityRequest, InsightsResponse>(
@@ -144,7 +144,7 @@ class RelationshipInsightsClient extends BaseCategoryClient {
 
   async getRedFlags(
     request: SingleSubjectRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<InsightsResponse> {
     validateSingleSubjectRequest(request, 'RelationshipRedFlagsRequest');
     return this.http.post<SingleSubjectRequest, InsightsResponse>(
@@ -164,7 +164,7 @@ class PetInsightsClient extends BaseCategoryClient {
 
   async getPersonality(
     request: PetSingleSubjectRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<PetPersonalityResponse> {
     validatePetSingleSubjectRequest(request, 'PetPersonalityRequest');
     return this.http.post<PetSingleSubjectRequest, PetPersonalityResponse>(
@@ -176,7 +176,7 @@ class PetInsightsClient extends BaseCategoryClient {
 
   async getCompatibility(
     request: PetCompatibilityRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<PetCompatibilityResponse> {
     validatePetCompatibilityRequest(request);
     return this.http.post<PetCompatibilityRequest, PetCompatibilityResponse>(
@@ -188,7 +188,7 @@ class PetInsightsClient extends BaseCategoryClient {
 
   async getTrainingWindows(
     request: PetSingleSubjectRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<PetTrainingWindowsResponse> {
     validatePetSingleSubjectRequest(request, 'PetTrainingWindowsRequest');
     return this.http.post<PetSingleSubjectRequest, PetTrainingWindowsResponse>(
@@ -200,7 +200,7 @@ class PetInsightsClient extends BaseCategoryClient {
 
   async getHealthSensitivities(
     request: PetSingleSubjectRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<PetHealthSensitivitiesResponse> {
     validatePetSingleSubjectRequest(request, 'PetHealthSensitivitiesRequest');
     return this.http.post<PetSingleSubjectRequest, PetHealthSensitivitiesResponse>(
@@ -212,7 +212,7 @@ class PetInsightsClient extends BaseCategoryClient {
 
   async getMultiPetDynamics(
     request: PetMultiSubjectRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<MultiPetDynamicsResponse> {
     validatePetMultiSubjectRequest(request);
     return this.http.post<PetMultiSubjectRequest, MultiPetDynamicsResponse>(
@@ -232,7 +232,7 @@ class WellnessInsightsClient extends BaseCategoryClient {
 
   async getBodyMapping(
     request: SingleSubjectRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<InsightsResponse> {
     validateSingleSubjectRequest(request, 'WellnessBodyMappingRequest');
     return this.http.post<SingleSubjectRequest, InsightsResponse>(
@@ -244,7 +244,7 @@ class WellnessInsightsClient extends BaseCategoryClient {
 
   async getBiorhythms(
     request: SingleSubjectRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<InsightsResponse> {
     validateSingleSubjectRequest(request, 'WellnessBiorhythmsRequest');
     return this.http.post<SingleSubjectRequest, InsightsResponse>(
@@ -256,7 +256,7 @@ class WellnessInsightsClient extends BaseCategoryClient {
 
   async getWellnessTiming(
     request: SingleSubjectRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<InsightsResponse> {
     validateSingleSubjectRequest(request, 'WellnessTimingRequest');
     return this.http.post<SingleSubjectRequest, InsightsResponse>(
@@ -268,7 +268,7 @@ class WellnessInsightsClient extends BaseCategoryClient {
 
   async getEnergyPatterns(
     request: SingleSubjectRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<InsightsResponse> {
     validateSingleSubjectRequest(request, 'WellnessEnergyPatternsRequest');
     return this.http.post<SingleSubjectRequest, InsightsResponse>(
@@ -280,7 +280,7 @@ class WellnessInsightsClient extends BaseCategoryClient {
 
   async getWellnessScore(
     request: SingleSubjectRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<InsightsResponse> {
     validateSingleSubjectRequest(request, 'WellnessScoreRequest');
     return this.http.post<SingleSubjectRequest, InsightsResponse>(
@@ -292,7 +292,7 @@ class WellnessInsightsClient extends BaseCategoryClient {
 
   async getMoonWellness(
     request: SingleSubjectRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<InsightsResponse> {
     validateSingleSubjectRequest(request, 'MoonWellnessRequest');
     return this.http.post<SingleSubjectRequest, InsightsResponse>(
@@ -312,7 +312,7 @@ class FinancialInsightsClient extends BaseCategoryClient {
 
   async getMarketTiming(
     request: MarketTimingRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<MarketTimingResponse> {
     validateMarketTimingRequest(request);
     return this.http.post<MarketTimingRequest, MarketTimingResponse>(
@@ -324,7 +324,7 @@ class FinancialInsightsClient extends BaseCategoryClient {
 
   async analyzePersonalTrading(
     request: PersonalTradingRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<PersonalTradingResponse> {
     validatePersonalTradingRequest(request);
     return this.http.post<PersonalTradingRequest, PersonalTradingResponse>(
@@ -336,7 +336,7 @@ class FinancialInsightsClient extends BaseCategoryClient {
 
   async getGannAnalysis(
     request: GannAnalysisRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<GannAnalysisResponse> {
     validateGannAnalysisRequest(request);
     return this.http.post<GannAnalysisRequest, GannAnalysisResponse>(
@@ -348,7 +348,7 @@ class FinancialInsightsClient extends BaseCategoryClient {
 
   async getBradleySiderograph(
     request: BradleySiderographRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<BradleySiderographResponse> {
     validateBradleySiderographRequest(request);
     return this.http.post<BradleySiderographRequest, BradleySiderographResponse>(
@@ -360,7 +360,7 @@ class FinancialInsightsClient extends BaseCategoryClient {
 
   async getCryptoTiming(
     request: CryptoTimingRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<CryptoTimingResponse> {
     validateCryptoTimingRequest(request);
     return this.http.post<CryptoTimingRequest, CryptoTimingResponse>(
@@ -372,7 +372,7 @@ class FinancialInsightsClient extends BaseCategoryClient {
 
   async getForexTiming(
     request: ForexTimingRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<ForexTimingResponse> {
     validateForexTimingRequest(request);
     return this.http.post<ForexTimingRequest, ForexTimingResponse>(
@@ -392,7 +392,7 @@ class BusinessInsightsClient extends BaseCategoryClient {
 
   async getTeamDynamics(
     request: BusinessMultipleRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<BusinessInsightsResponse> {
     validateBusinessMultipleRequest(request, 'BusinessTeamDynamicsRequest', 2);
     return this.http.post<BusinessMultipleRequest, BusinessInsightsResponse>(
@@ -404,7 +404,7 @@ class BusinessInsightsClient extends BaseCategoryClient {
 
   async getHiringCompatibility(
     request: BusinessMultipleRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<BusinessInsightsResponse> {
     validateBusinessMultipleRequest(request, 'BusinessHiringCompatibilityRequest', 2);
     return this.http.post<BusinessMultipleRequest, BusinessInsightsResponse>(
@@ -416,7 +416,7 @@ class BusinessInsightsClient extends BaseCategoryClient {
 
   async getLeadershipStyle(
     request: BusinessSingleRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<BusinessInsightsResponse> {
     validateBusinessSingleRequest(request, 'BusinessLeadershipStyleRequest');
     return this.http.post<BusinessSingleRequest, BusinessInsightsResponse>(
@@ -428,7 +428,7 @@ class BusinessInsightsClient extends BaseCategoryClient {
 
   async getBusinessTiming(
     request: BusinessTimingRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<BusinessInsightsResponse> {
     validateBusinessTimingRequest(request);
     return this.http.post<BusinessTimingRequest, BusinessInsightsResponse>(
@@ -440,7 +440,7 @@ class BusinessInsightsClient extends BaseCategoryClient {
 
   async getDepartmentCompatibility(
     request: BusinessMultipleRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<BusinessInsightsResponse> {
     validateBusinessMultipleRequest(request, 'BusinessDepartmentCompatibilityRequest', 2);
     return this.http.post<BusinessMultipleRequest, BusinessInsightsResponse>(
@@ -452,7 +452,7 @@ class BusinessInsightsClient extends BaseCategoryClient {
 
   async getSuccessionPlanning(
     request: BusinessMultipleRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<BusinessInsightsResponse> {
     validateBusinessMultipleRequest(request, 'BusinessSuccessionPlanningRequest', 2);
     return this.http.post<BusinessMultipleRequest, BusinessInsightsResponse>(

@@ -1,5 +1,3 @@
-import { AxiosRequestConfig } from 'axios';
-
 export interface RetryConfig {
   attempts: number;
   delayMs?: number;
@@ -7,6 +5,22 @@ export interface RetryConfig {
 }
 
 export type AstrologyLogger = (message: string, details?: unknown) => void;
+
+/**
+ * Configuration for individual HTTP requests.
+ */
+export interface RequestConfig {
+  /** Query parameters to append to the URL */
+  params?: Record<string, string | number | boolean | null | undefined>;
+  /** Additional headers for the request */
+  headers?: Record<string, string>;
+  /** AbortSignal for request cancellation */
+  signal?: AbortSignal;
+  /** Request timeout in milliseconds (overrides client default) */
+  timeout?: number;
+  /** Response type: 'json' (default) or 'text' */
+  responseType?: 'json' | 'text';
+}
 
 export interface AstrologyClientConfig {
   /**
@@ -23,7 +37,10 @@ export interface AstrologyClientConfig {
   baseURL?: string;
   timeout?: number;
   retry?: RetryConfig;
-  axiosOptions?: AxiosRequestConfig;
+  /**
+   * Additional options for individual requests.
+   */
+  requestOptions?: RequestConfig;
   /**
    * Enables verbose logging. Can also be toggled via the ASTROLOGY_DEBUG environment variable.
    */

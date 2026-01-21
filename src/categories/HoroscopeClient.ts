@@ -1,4 +1,4 @@
-import type { AxiosRequestConfig } from 'axios';
+import type { RequestConfig } from '../types/config';
 
 import type {
   ChineseHoroscopeRequest,
@@ -44,7 +44,7 @@ export class HoroscopeClient extends BaseCategoryClient {
 
   async getPersonalDailyHoroscope(
     request: PersonalizedHoroscopeRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<PersonalDailyHoroscopeResponse> {
     validatePersonalizedHoroscopeRequest(request);
     return this.http.post<PersonalizedHoroscopeRequest, PersonalDailyHoroscopeResponse>(
@@ -56,7 +56,7 @@ export class HoroscopeClient extends BaseCategoryClient {
 
   async getPersonalDailyHoroscopeText(
     request: PersonalTextHoroscopeRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<HoroscopeTextResponse> {
     validatePersonalTextHoroscopeRequest(request);
     return this.http.post<PersonalTextHoroscopeRequest, HoroscopeTextResponse>(
@@ -68,7 +68,7 @@ export class HoroscopeClient extends BaseCategoryClient {
 
   async getSignDailyHoroscope(
     request: SunSignHoroscopeRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<PersonalDailyHoroscopeResponse> {
     validateSunSignHoroscopeRequest(request);
     return this.http.post<SunSignHoroscopeRequest, PersonalDailyHoroscopeResponse>(
@@ -80,7 +80,7 @@ export class HoroscopeClient extends BaseCategoryClient {
 
   async getSignDailyHoroscopeText(
     request: TextHoroscopeRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<HoroscopeTextResponse> {
     validateTextHoroscopeRequest(request);
     return this.http.post<TextHoroscopeRequest, HoroscopeTextResponse>(
@@ -92,7 +92,7 @@ export class HoroscopeClient extends BaseCategoryClient {
 
   async getSignWeeklyHoroscope(
     request: SunSignWeeklyHoroscopeRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<SunSignWeeklyHoroscopeResponse> {
     validateSunSignWeeklyHoroscopeRequest(request);
     return this.http.post<SunSignWeeklyHoroscopeRequest, SunSignWeeklyHoroscopeResponse>(
@@ -104,7 +104,7 @@ export class HoroscopeClient extends BaseCategoryClient {
 
   async getSignWeeklyHoroscopeText(
     request: TextWeeklyHoroscopeRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<HoroscopeTextResponse> {
     validateTextWeeklyHoroscopeRequest(request);
     return this.http.post<TextWeeklyHoroscopeRequest, HoroscopeTextResponse>(
@@ -116,7 +116,7 @@ export class HoroscopeClient extends BaseCategoryClient {
 
   async getSignMonthlyHoroscope(
     request: SunSignMonthlyHoroscopeRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<SunSignMonthlyHoroscopeResponse> {
     validateSunSignMonthlyHoroscopeRequest(request);
     return this.http.post<SunSignMonthlyHoroscopeRequest, SunSignMonthlyHoroscopeResponse>(
@@ -128,7 +128,7 @@ export class HoroscopeClient extends BaseCategoryClient {
 
   async getSignMonthlyHoroscopeText(
     request: TextMonthlyHoroscopeRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<HoroscopeTextResponse> {
     validateTextMonthlyHoroscopeRequest(request);
     return this.http.post<TextMonthlyHoroscopeRequest, HoroscopeTextResponse>(
@@ -140,7 +140,7 @@ export class HoroscopeClient extends BaseCategoryClient {
 
   async getSignYearlyHoroscope(
     request: SunSignYearlyHoroscopeRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<SunSignYearlyHoroscopeResponse> {
     validateSunSignYearlyHoroscopeRequest(request);
     return this.http.post<SunSignYearlyHoroscopeRequest, SunSignYearlyHoroscopeResponse>(
@@ -152,7 +152,7 @@ export class HoroscopeClient extends BaseCategoryClient {
 
   async getChineseHoroscope(
     request: ChineseHoroscopeRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<ChineseHoroscopeResponse> {
     validateChineseHoroscopeRequest(request);
     return this.http.post<ChineseHoroscopeRequest, ChineseHoroscopeResponse>(

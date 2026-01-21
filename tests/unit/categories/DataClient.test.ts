@@ -1,6 +1,4 @@
-import axios from 'axios';
-import MockAdapter from 'axios-mock-adapter';
-
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { DataClient } from '../../../src/categories/DataClient';
 import { AstrologyError } from '../../../src/errors/AstrologyError';
 import type {
@@ -19,7 +17,8 @@ import type {
   LunarMetricsResponse,
   PlanetaryPositionsResponse,
 } from '../../../src/types/responses';
-import { AxiosHttpHelper } from '../../../src/utils/http';
+import { createTestHttpHelper } from '../../utils/testHelpers';
+import { mockFetch } from '../../utils/mockFetch';
 
 const createPlanetaryPositionsRequest = (): PlanetaryPositionsRequest => ({
   subject: {
@@ -60,41 +59,16 @@ const createGlobalDataRequest = (): GlobalDataRequest => ({
   },
 });
 
-const createHttpHelper = () => {
-  const axiosInstance = axios.create();
-  const mock = new MockAdapter(axiosInstance);
-
-  const helper = new AxiosHttpHelper(
-    axiosInstance,
-    <T>(payload: unknown): T => {
-      if (payload && typeof payload === 'object') {
-        const record = payload as Record<string, unknown>;
-        if (record.data !== undefined) {
-          return record.data as T;
-        }
-        if (record.result !== undefined) {
-          return record.result as T;
-        }
-      }
-      return payload as T;
-    },
-  );
-
-  return { helper, mock };
-};
-
 describe('DataClient', () => {
   let client: DataClient;
-  let mock: MockAdapter;
 
   beforeEach(() => {
-    const { helper, mock: axiosMock } = createHttpHelper();
+    const helper = createTestHttpHelper();
     client = new DataClient(helper);
-    mock = axiosMock;
   });
 
   afterEach(() => {
-    mock.reset();
+    mockFetch.reset();
   });
 
   it('retrieves planetary positions', async () => {
@@ -113,7 +87,7 @@ describe('DataClient', () => {
       ],
     };
 
-    mock.onPost('/api/v3/data/positions').reply(200, { data: response });
+    mockFetch.onPost('/api/v3/data/positions').reply(200, { data: response });
 
     await expect(client.getPositions(request)).resolves.toEqual(response);
   });
@@ -182,7 +156,7 @@ describe('DataClient', () => {
       },
     };
 
-    mock.onPost('/api/v3/data/positions/enhanced').reply(200, response);
+    mockFetch.onPost('/api/v3/data/positions/enhanced').reply(200, response);
 
     await expect(client.getEnhancedPositions(request)).resolves.toEqual(response);
   });
@@ -201,7 +175,7 @@ describe('DataClient', () => {
       ],
     };
 
-    mock.onPost('/api/v3/data/global-positions').reply(200, { result: response });
+    mockFetch.onPost('/api/v3/data/global-positions').reply(200, { result: response });
 
     await expect(client.getGlobalPositions(request)).resolves.toEqual(response);
   });
@@ -232,7 +206,7 @@ describe('DataClient', () => {
       ],
     };
 
-    mock.onPost('/api/v3/data/aspects').reply(200, response);
+    mockFetch.onPost('/api/v3/data/aspects').reply(200, response);
 
     await expect(client.getAspects(request)).resolves.toEqual(response);
   });
@@ -259,7 +233,7 @@ describe('DataClient', () => {
       },
     };
 
-    mock.onPost('/api/v3/data/aspects/enhanced').reply(200, { data: response });
+    mockFetch.onPost('/api/v3/data/aspects/enhanced').reply(200, { data: response });
 
     await expect(client.getEnhancedAspects(request)).resolves.toEqual(response);
   });
@@ -277,7 +251,7 @@ describe('DataClient', () => {
       ],
     };
 
-    mock.onPost('/api/v3/data/house-cusps').reply(200, response);
+    mockFetch.onPost('/api/v3/data/house-cusps').reply(200, response);
 
     await expect(client.getHouseCusps(request)).resolves.toEqual(response);
   });
@@ -297,7 +271,7 @@ describe('DataClient', () => {
       moon_illumination: 0.78,
     };
 
-    mock.onPost('/api/v3/data/lunar-metrics').reply(200, response);
+    mockFetch.onPost('/api/v3/data/lunar-metrics').reply(200, response);
 
     await expect(client.getLunarMetrics(request)).resolves.toEqual(response);
   });
@@ -335,7 +309,7 @@ describe('DataClient', () => {
       },
     };
 
-    mock.onPost('/api/v3/data/lunar-metrics/enhanced').reply(200, { result: response });
+    mockFetch.onPost('/api/v3/data/lunar-metrics/enhanced').reply(200, { result: response });
 
     await expect(client.getEnhancedLunarMetrics(request)).resolves.toEqual(response);
   });
@@ -356,9 +330,8 @@ describe('DataClient', () => {
       },
     };
 
-    mock.onGet('/api/v3/data/now').reply(200, { data: response });
+    mockFetch.onGet('/api/v3/data/now').reply(200, { data: response });
 
     await expect(client.getCurrentMoment()).resolves.toEqual(response);
   });
 });
-

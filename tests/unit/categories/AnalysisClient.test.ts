@@ -1,5 +1,5 @@
-import axios from 'axios';
-import MockAdapter from 'axios-mock-adapter';
+
+
 
 import { AnalysisClient } from '../../../src/categories/AnalysisClient';
 import { AstrologyError } from '../../../src/errors/AstrologyError';
@@ -33,9 +33,9 @@ import type {
   SolarReturnTransitReportResponse,
   SynastryReportResponse,
 } from '../../../src/types/responses';
-import { AxiosHttpHelper } from '../../../src/utils/http';
+import { createTestHttpHelper } from '../../utils/testHelpers';
+import { mockFetch } from '../../utils/mockFetch';
 
-type HttpHelperWithMock = { helper: AxiosHttpHelper; mock: MockAdapter };
 
 const createSubject = (overrides: Partial<Subject> = {}): Subject => ({
   name: 'Test Subject',
@@ -243,45 +243,24 @@ const mockLunarAnalysisResponse: LunarAnalysisResponse = {
   interpretations: [],
 };
 
-const createHttpHelper = (): HttpHelperWithMock => {
-  const axiosInstance = axios.create();
-  const mock = new MockAdapter(axiosInstance);
-  const helper = new AxiosHttpHelper(
-    axiosInstance,
-    <T>(payload: unknown): T => {
-      if (payload && typeof payload === 'object') {
-        const record = payload as Record<string, unknown>;
-        if (record.data !== undefined) {
-          return record.data as T;
-        }
-        if (record.result !== undefined) {
-          return record.result as T;
-        }
-      }
-      return payload as T;
-    },
-  );
-
-  return { helper, mock };
-};
 
 describe('AnalysisClient', () => {
   let client: AnalysisClient;
-  let mock: MockAdapter;
+  
 
   beforeEach(() => {
-    const { helper, mock: axiosMock } = createHttpHelper();
+    const helper = createTestHttpHelper();
     client = new AnalysisClient(helper);
-    mock = axiosMock;
+    
   });
 
   afterEach(() => {
-    mock.reset();
+    mockFetch.reset();
   });
 
   it('retrieves natal report', async () => {
     const request = createNatalReportRequest();
-    mock.onPost('/api/v3/analysis/natal-report').reply(200, { data: mockNatalReportResponse });
+    mockFetch.onPost('/api/v3/analysis/natal-report').reply(200, { data: mockNatalReportResponse });
 
     await expect(client.getNatalReport(request)).resolves.toEqual(mockNatalReportResponse);
   });
@@ -294,7 +273,7 @@ describe('AnalysisClient', () => {
 
   it('retrieves synastry report', async () => {
     const request = createSynastryReportRequest();
-    mock.onPost('/api/v3/analysis/synastry-report').reply(200, { data: mockSynastryReportResponse });
+    mockFetch.onPost('/api/v3/analysis/synastry-report').reply(200, { data: mockSynastryReportResponse });
 
     await expect(client.getSynastryReport(request)).resolves.toEqual(mockSynastryReportResponse);
   });
@@ -310,7 +289,7 @@ describe('AnalysisClient', () => {
 
   it('retrieves composite report', async () => {
     const request = createCompositeReportRequest();
-    mock.onPost('/api/v3/analysis/composite-report').reply(200, { data: mockCompositeReportResponse });
+    mockFetch.onPost('/api/v3/analysis/composite-report').reply(200, { data: mockCompositeReportResponse });
 
     await expect(client.getCompositeReport(request)).resolves.toEqual(mockCompositeReportResponse);
   });
@@ -323,14 +302,14 @@ describe('AnalysisClient', () => {
 
   it('retrieves compatibility analysis', async () => {
     const request = createCompatibilityRequest();
-    mock.onPost('/api/v3/analysis/compatibility').reply(200, { data: mockSynastryReportResponse });
+    mockFetch.onPost('/api/v3/analysis/compatibility').reply(200, { data: mockSynastryReportResponse });
 
     await expect(client.getCompatibilityAnalysis(request)).resolves.toEqual(mockSynastryReportResponse);
   });
 
   it('retrieves compatibility score', async () => {
     const request = createSynastryChartRequest();
-    mock.onPost('/api/v3/analysis/compatibility-score').reply(200, { data: mockRelationshipScoreResponse });
+    mockFetch.onPost('/api/v3/analysis/compatibility-score').reply(200, { data: mockRelationshipScoreResponse });
 
     await expect(client.getCompatibilityScore(request)).resolves.toEqual(mockRelationshipScoreResponse);
   });
@@ -346,7 +325,7 @@ describe('AnalysisClient', () => {
 
   it('retrieves relationship analysis', async () => {
     const request = createRelationshipAnalysisRequest();
-    mock.onPost('/api/v3/analysis/relationship').reply(200, { data: mockSynastryReportResponse });
+    mockFetch.onPost('/api/v3/analysis/relationship').reply(200, { data: mockSynastryReportResponse });
 
     await expect(client.getRelationshipAnalysis(request)).resolves.toEqual(mockSynastryReportResponse);
   });
@@ -361,14 +340,14 @@ describe('AnalysisClient', () => {
 
   it('retrieves relationship score', async () => {
     const request = createSynastryChartRequest();
-    mock.onPost('/api/v3/analysis/relationship-score').reply(200, { data: mockRelationshipScoreResponse });
+    mockFetch.onPost('/api/v3/analysis/relationship-score').reply(200, { data: mockRelationshipScoreResponse });
 
     await expect(client.getRelationshipScore(request)).resolves.toEqual(mockRelationshipScoreResponse);
   });
 
   it('retrieves transit report', async () => {
     const request = createNatalTransitRequest();
-    mock.onPost('/api/v3/analysis/transit-report').reply(200, { data: mockNatalTransitReportResponse });
+    mockFetch.onPost('/api/v3/analysis/transit-report').reply(200, { data: mockNatalTransitReportResponse });
 
     await expect(client.getTransitReport(request)).resolves.toEqual(mockNatalTransitReportResponse);
   });
@@ -384,14 +363,14 @@ describe('AnalysisClient', () => {
 
   it('retrieves natal transit report', async () => {
     const request = createNatalTransitRequest();
-    mock.onPost('/api/v3/analysis/natal-transit-report').reply(200, { data: mockNatalTransitReportResponse });
+    mockFetch.onPost('/api/v3/analysis/natal-transit-report').reply(200, { data: mockNatalTransitReportResponse });
 
     await expect(client.getNatalTransitReport(request)).resolves.toEqual(mockNatalTransitReportResponse);
   });
 
   it('retrieves progression report', async () => {
     const request = createProgressionReportRequest();
-    mock.onPost('/api/v3/analysis/progression-report').reply(200, { data: mockProgressionReportResponse });
+    mockFetch.onPost('/api/v3/analysis/progression-report').reply(200, { data: mockProgressionReportResponse });
 
     await expect(client.getProgressionReport(request)).resolves.toEqual(mockProgressionReportResponse);
   });
@@ -408,7 +387,7 @@ describe('AnalysisClient', () => {
 
   it('retrieves direction report', async () => {
     const request = createDirectionReportRequest();
-    mock.onPost('/api/v3/analysis/direction-report').reply(200, { data: mockDirectionReportResponse });
+    mockFetch.onPost('/api/v3/analysis/direction-report').reply(200, { data: mockDirectionReportResponse });
 
     await expect(client.getDirectionReport(request)).resolves.toEqual(mockDirectionReportResponse);
   });
@@ -425,7 +404,7 @@ describe('AnalysisClient', () => {
 
   it('retrieves lunar return report', async () => {
     const request = createLunarReturnReportRequest();
-    mock.onPost('/api/v3/analysis/lunar-return-report').reply(200, { data: mockLunarReturnReportResponse });
+    mockFetch.onPost('/api/v3/analysis/lunar-return-report').reply(200, { data: mockLunarReturnReportResponse });
 
     await expect(client.getLunarReturnReport(request)).resolves.toEqual(mockLunarReturnReportResponse);
   });
@@ -441,7 +420,7 @@ describe('AnalysisClient', () => {
 
   it('retrieves solar return report', async () => {
     const request = createSolarReturnReportRequest();
-    mock.onPost('/api/v3/analysis/solar-return-report').reply(200, { data: mockSolarReturnReportResponse });
+    mockFetch.onPost('/api/v3/analysis/solar-return-report').reply(200, { data: mockSolarReturnReportResponse });
 
     await expect(client.getSolarReturnReport(request)).resolves.toEqual(mockSolarReturnReportResponse);
   });
@@ -457,7 +436,7 @@ describe('AnalysisClient', () => {
 
   it('retrieves lunar return transit report', async () => {
     const request = createLunarReturnTransitRequest();
-    mock.onPost('/api/v3/analysis/lunar-return-transit-report').reply(200, { data: mockLunarReturnTransitReportResponse });
+    mockFetch.onPost('/api/v3/analysis/lunar-return-transit-report').reply(200, { data: mockLunarReturnTransitReportResponse });
 
     await expect(client.getLunarReturnTransitReport(request)).resolves.toEqual(mockLunarReturnTransitReportResponse);
   });
@@ -478,7 +457,7 @@ describe('AnalysisClient', () => {
 
   it('retrieves solar return transit report', async () => {
     const request = createSolarReturnTransitRequest();
-    mock.onPost('/api/v3/analysis/solar-return-transit-report').reply(200, { data: mockSolarReturnTransitReportResponse });
+    mockFetch.onPost('/api/v3/analysis/solar-return-transit-report').reply(200, { data: mockSolarReturnTransitReportResponse });
 
     await expect(client.getSolarReturnTransitReport(request)).resolves.toEqual(mockSolarReturnTransitReportResponse);
   });
@@ -499,63 +478,63 @@ describe('AnalysisClient', () => {
 
   it('retrieves career analysis', async () => {
     const request = createNatalReportRequest();
-    mock.onPost('/api/v3/analysis/career').reply(200, { data: mockNatalReportResponse });
+    mockFetch.onPost('/api/v3/analysis/career').reply(200, { data: mockNatalReportResponse });
 
     await expect(client.getCareerAnalysis(request)).resolves.toEqual(mockNatalReportResponse);
   });
 
   it('retrieves health analysis', async () => {
     const request = createNatalReportRequest();
-    mock.onPost('/api/v3/analysis/health').reply(200, { data: mockNatalReportResponse });
+    mockFetch.onPost('/api/v3/analysis/health').reply(200, { data: mockNatalReportResponse });
 
     await expect(client.getHealthAnalysis(request)).resolves.toEqual(mockNatalReportResponse);
   });
 
   it('retrieves karmic analysis', async () => {
     const request = createNatalReportRequest();
-    mock.onPost('/api/v3/analysis/karmic').reply(200, { data: mockNatalReportResponse });
+    mockFetch.onPost('/api/v3/analysis/karmic').reply(200, { data: mockNatalReportResponse });
 
     await expect(client.getKarmicAnalysis(request)).resolves.toEqual(mockNatalReportResponse);
   });
 
   it('retrieves psychological analysis', async () => {
     const request = createNatalReportRequest();
-    mock.onPost('/api/v3/analysis/psychological').reply(200, { data: mockNatalReportResponse });
+    mockFetch.onPost('/api/v3/analysis/psychological').reply(200, { data: mockNatalReportResponse });
 
     await expect(client.getPsychologicalAnalysis(request)).resolves.toEqual(mockNatalReportResponse);
   });
 
   it('retrieves spiritual analysis', async () => {
     const request = createNatalReportRequest();
-    mock.onPost('/api/v3/analysis/spiritual').reply(200, { data: mockNatalReportResponse });
+    mockFetch.onPost('/api/v3/analysis/spiritual').reply(200, { data: mockNatalReportResponse });
 
     await expect(client.getSpiritualAnalysis(request)).resolves.toEqual(mockNatalReportResponse);
   });
 
   it('retrieves predictive analysis', async () => {
     const request = createNatalTransitRequest();
-    mock.onPost('/api/v3/analysis/predictive').reply(200, { data: mockNatalTransitReportResponse });
+    mockFetch.onPost('/api/v3/analysis/predictive').reply(200, { data: mockNatalTransitReportResponse });
 
     await expect(client.getPredictiveAnalysis(request)).resolves.toEqual(mockNatalTransitReportResponse);
   });
 
   it('retrieves vocational analysis', async () => {
     const request = createNatalReportRequest();
-    mock.onPost('/api/v3/analysis/vocational').reply(200, { data: mockNatalReportResponse });
+    mockFetch.onPost('/api/v3/analysis/vocational').reply(200, { data: mockNatalReportResponse });
 
     await expect(client.getVocationalAnalysis(request)).resolves.toEqual(mockNatalReportResponse);
   });
 
   it('retrieves relocation analysis', async () => {
     const request = createNatalReportRequest();
-    mock.onPost('/api/v3/analysis/relocation').reply(200, { data: mockNatalReportResponse });
+    mockFetch.onPost('/api/v3/analysis/relocation').reply(200, { data: mockNatalReportResponse });
 
     await expect(client.getRelocationAnalysis(request)).resolves.toEqual(mockNatalReportResponse);
   });
 
   it('retrieves lunar analysis', async () => {
     const request = createLunarAnalysisRequest();
-    mock.onPost('/api/v3/analysis/lunar-analysis').reply(200, { data: mockLunarAnalysisResponse });
+    mockFetch.onPost('/api/v3/analysis/lunar-analysis').reply(200, { data: mockLunarAnalysisResponse });
 
     await expect(client.getLunarAnalysis(request)).resolves.toEqual(mockLunarAnalysisResponse);
   });

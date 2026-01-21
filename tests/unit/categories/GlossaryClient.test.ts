@@ -1,5 +1,5 @@
-import axios from 'axios';
-import MockAdapter from 'axios-mock-adapter';
+
+
 
 import { GlossaryClient } from '../../../src/categories/GlossaryClient';
 import { AstrologyError } from '../../../src/errors/AstrologyError';
@@ -19,31 +19,10 @@ import type {
   ZodiacTypesResponse,
 } from '../../../src/types/responses';
 import type { CityDetails } from '../../../src/types';
-import { AxiosHttpHelper } from '../../../src/utils/http';
+import { createTestHttpHelper } from '../../utils/testHelpers';
+import { mockFetch } from '../../utils/mockFetch';
 
-type HttpHelperWithMock = { helper: AxiosHttpHelper; mock: MockAdapter };
 
-const createHttpHelper = (): HttpHelperWithMock => {
-  const axiosInstance = axios.create();
-  const mock = new MockAdapter(axiosInstance);
-  const helper = new AxiosHttpHelper(
-    axiosInstance,
-    <T>(payload: unknown): T => {
-      if (payload && typeof payload === 'object') {
-        const record = payload as Record<string, unknown>;
-        if (record.data !== undefined) {
-          return record.data as T;
-        }
-        if (record.result !== undefined) {
-          return record.result as T;
-        }
-      }
-      return payload as T;
-    },
-  );
-
-  return { helper, mock };
-};
 
 const createActivePointsResponse = (): ActivePointsResponse => ({
   items: [
@@ -154,21 +133,21 @@ const createZodiacTypesResponse = (): ZodiacTypesResponse => ({
 
 describe('GlossaryClient', () => {
   let client: GlossaryClient;
-  let mock: MockAdapter;
+  
 
   beforeEach(() => {
-    const { helper, mock: axiosMock } = createHttpHelper();
+    const helper = createTestHttpHelper();
     client = new GlossaryClient(helper);
-    mock = axiosMock;
+    
   });
 
   afterEach(() => {
-    mock.reset();
+    mockFetch.reset();
   });
 
   it('retrieves active points', async () => {
     const response = createActivePointsResponse();
-    mock.onGet('/api/v3/glossary/active-points').reply(200, { data: response });
+    mockFetch.onGet('/api/v3/glossary/active-points').reply(200, { data: response });
 
     await expect(client.getActivePoints()).resolves.toEqual(response);
   });
@@ -181,14 +160,14 @@ describe('GlossaryClient', () => {
 
   it('retrieves primary active points', async () => {
     const response = createActivePointsResponse();
-    mock.onGet('/api/v3/glossary/active-points/primary').reply(200, { data: response });
+    mockFetch.onGet('/api/v3/glossary/active-points/primary').reply(200, { data: response });
 
     await expect(client.getPrimaryActivePoints()).resolves.toEqual(response);
   });
 
   it('merges primary active points params with config', async () => {
     const response = createActivePointsResponse();
-    mock.onGet('/api/v3/glossary/active-points/primary').reply((config) => {
+    mockFetch.onGet('/api/v3/glossary/active-points/primary').reply((config) => {
       expect(config.params).toMatchObject({ type: 'angle', include: 'featured' });
       expect(config.headers?.Authorization).toBe('Bearer token');
       return [200, { data: response }];
@@ -204,7 +183,7 @@ describe('GlossaryClient', () => {
 
   it('merges active points params with config', async () => {
     const response = createActivePointsResponse();
-    mock.onGet('/api/v3/glossary/active-points').reply((config) => {
+    mockFetch.onGet('/api/v3/glossary/active-points').reply((config) => {
       expect(config.params).toMatchObject({ type: 'planet', include: 'popular' });
       expect(config.headers?.Authorization).toBe('Bearer token');
       return [200, { data: response }];
@@ -220,7 +199,7 @@ describe('GlossaryClient', () => {
 
   it('merges active points params with custom config', async () => {
     const response = createActivePointsResponse();
-    mock.onGet('/api/v3/glossary/active-points').reply((config) => {
+    mockFetch.onGet('/api/v3/glossary/active-points').reply((config) => {
       expect(config.params).toMatchObject({ type: 'planet', include: 'popular' });
       expect(config.headers?.Authorization).toBe('Bearer token');
       return [200, { data: response }];
@@ -240,8 +219,8 @@ describe('GlossaryClient', () => {
 
   it('retrieves cities with parameters', async () => {
     const response = createCitiesResponse();
-    mock.onGet('/api/v3/glossary/cities').reply((config) => {
-      expect(config.params).toMatchObject({ search: 'Lon', limit: 5 });
+    mockFetch.onGet('/api/v3/glossary/cities').reply((config) => {
+      expect(config.params).toMatchObject({ search: 'Lon', limit: '5' });
       return [200, { data: response }];
     });
 
@@ -250,8 +229,8 @@ describe('GlossaryClient', () => {
 
   it('merges city params with config', async () => {
     const response = createCitiesResponse();
-    mock.onGet('/api/v3/glossary/cities').reply((config) => {
-      expect(config.params).toMatchObject({ search: 'Berlin', offset: 1, limit: 10 });
+    mockFetch.onGet('/api/v3/glossary/cities').reply((config) => {
+      expect(config.params).toMatchObject({ search: 'Berlin', offset: '1', limit: '10' });
       expect(config.headers?.Authorization).toBe('Bearer token');
       return [200, { data: response }];
     });
@@ -264,10 +243,10 @@ describe('GlossaryClient', () => {
     ).resolves.toEqual(response);
   });
 
-  it('merges city params with axios config', async () => {
+  it('merges city params with request config', async () => {
     const response = createCitiesResponse();
-    mock.onGet('/api/v3/glossary/cities').reply((config) => {
-      expect(config.params).toMatchObject({ search: 'Paris', offset: 1, limit: 10 });
+    mockFetch.onGet('/api/v3/glossary/cities').reply((config) => {
+      expect(config.params).toMatchObject({ search: 'Paris', offset: '1', limit: '10' });
       expect(config.headers?.Authorization).toBe('Bearer token');
       return [200, { data: response }];
     });
@@ -286,35 +265,35 @@ describe('GlossaryClient', () => {
 
   it('retrieves countries', async () => {
     const response = createCountriesResponse();
-    mock.onGet('/api/v3/glossary/countries').reply(200, { data: response });
+    mockFetch.onGet('/api/v3/glossary/countries').reply(200, { data: response });
 
     await expect(client.getCountries()).resolves.toEqual(response);
   });
 
   it('retrieves elements', async () => {
     const response = createElementsResponse();
-    mock.onGet('/api/v3/glossary/elements').reply(200, { data: response });
+    mockFetch.onGet('/api/v3/glossary/elements').reply(200, { data: response });
 
     await expect(client.getElements()).resolves.toEqual(response);
   });
 
   it('retrieves fixed stars', async () => {
     const response = createFixedStarsResponse();
-    mock.onGet('/api/v3/glossary/fixed-stars').reply(200, { data: response });
+    mockFetch.onGet('/api/v3/glossary/fixed-stars').reply(200, { data: response });
 
     await expect(client.getFixedStars()).resolves.toEqual(response);
   });
 
   it('retrieves house systems', async () => {
     const response = createHouseSystemsResponse();
-    mock.onGet('/api/v3/glossary/house-systems').reply(200, { data: response });
+    mockFetch.onGet('/api/v3/glossary/house-systems').reply(200, { data: response });
 
     await expect(client.getHouseSystems()).resolves.toEqual(response);
   });
 
   it('retrieves houses', async () => {
     const response = createHousesResponse();
-    mock.onGet('/api/v3/glossary/houses').reply((config) => {
+    mockFetch.onGet('/api/v3/glossary/houses').reply((config) => {
       expect(config.params).toMatchObject({ house_system: 'W' });
       return [200, { data: response }];
     });
@@ -324,7 +303,7 @@ describe('GlossaryClient', () => {
 
   it('merges house params with config', async () => {
     const response = createHousesResponse();
-    mock.onGet('/api/v3/glossary/houses').reply((config) => {
+    mockFetch.onGet('/api/v3/glossary/houses').reply((config) => {
       expect(config.params).toMatchObject({ house_system: 'W', language: 'en' });
       return [200, { data: response }];
     });
@@ -334,7 +313,7 @@ describe('GlossaryClient', () => {
 
   it('merges houses request with existing params', async () => {
     const response = createHousesResponse();
-    mock.onGet('/api/v3/glossary/houses').reply((config) => {
+    mockFetch.onGet('/api/v3/glossary/houses').reply((config) => {
       expect(config.params).toMatchObject({ house_system: 'W', language: 'en' });
       return [200, { data: response }];
     });
@@ -344,7 +323,7 @@ describe('GlossaryClient', () => {
 
   it('returns houses without house system filter when omitted', async () => {
     const response = createHousesResponse();
-    mock.onGet('/api/v3/glossary/houses').reply((config) => {
+    mockFetch.onGet('/api/v3/glossary/houses').reply((config) => {
       expect(config.params).not.toHaveProperty('house_system');
       expect(config.params).toMatchObject({ language: 'en' });
       return [200, { data: response }];
@@ -359,7 +338,7 @@ describe('GlossaryClient', () => {
 
   it('retrieves keyword collections', async () => {
     const response = createKeywordsResponse();
-    mock.onGet('/api/v3/glossary/keywords').reply((config) => {
+    mockFetch.onGet('/api/v3/glossary/keywords').reply((config) => {
       expect(config.params).toMatchObject({ category: 'planets' });
       return [200, { data: response }];
     });
@@ -369,7 +348,7 @@ describe('GlossaryClient', () => {
 
   it('merges keyword params with config', async () => {
     const response = createKeywordsResponse();
-    mock.onGet('/api/v3/glossary/keywords').reply((config) => {
+    mockFetch.onGet('/api/v3/glossary/keywords').reply((config) => {
       expect(config.params).toMatchObject({ category: 'planets', language: 'en' });
       return [200, { data: response }];
     });
@@ -379,7 +358,7 @@ describe('GlossaryClient', () => {
 
   it('returns keywords without category filter when omitted', async () => {
     const response = createKeywordsResponse();
-    mock.onGet('/api/v3/glossary/keywords').reply((config) => {
+    mockFetch.onGet('/api/v3/glossary/keywords').reply((config) => {
       expect(config.params).not.toHaveProperty('category');
       expect(config.params).toMatchObject({ language: 'en' });
       return [200, { data: response }];
@@ -390,7 +369,7 @@ describe('GlossaryClient', () => {
 
   it('merges keyword params with config', async () => {
     const response = createKeywordsResponse();
-    mock.onGet('/api/v3/glossary/keywords').reply((config) => {
+    mockFetch.onGet('/api/v3/glossary/keywords').reply((config) => {
       expect(config.params).toMatchObject({ category: 'planets', language: 'en' });
       return [200, { data: response }];
     });
@@ -404,14 +383,14 @@ describe('GlossaryClient', () => {
 
   it('retrieves languages', async () => {
     const response = createLanguagesResponse();
-    mock.onGet('/api/v3/glossary/languages').reply(200, { data: response });
+    mockFetch.onGet('/api/v3/glossary/languages').reply(200, { data: response });
 
     await expect(client.getLanguages()).resolves.toEqual(response);
   });
 
   it('retrieves life areas', async () => {
     const response = createLifeAreasResponse();
-    mock.onGet('/api/v3/glossary/life-areas').reply((config) => {
+    mockFetch.onGet('/api/v3/glossary/life-areas').reply((config) => {
       expect(config.params).toMatchObject({ language: 'de' });
       return [200, { data: response }];
     });
@@ -421,7 +400,7 @@ describe('GlossaryClient', () => {
 
   it('merges life areas params with config', async () => {
     const response = createLifeAreasResponse();
-    mock.onGet('/api/v3/glossary/life-areas').reply((config) => {
+    mockFetch.onGet('/api/v3/glossary/life-areas').reply((config) => {
       expect(config.params).toMatchObject({ language: 'en', audience: 'developers' });
       return [200, { data: response }];
     });
@@ -433,7 +412,7 @@ describe('GlossaryClient', () => {
 
   it('merges life area params with config', async () => {
     const response = createLifeAreasResponse();
-    mock.onGet('/api/v3/glossary/life-areas').reply((config) => {
+    mockFetch.onGet('/api/v3/glossary/life-areas').reply((config) => {
       expect(config.params).toMatchObject({ language: 'en', audience: 'developers' });
       return [200, { data: response }];
     });
@@ -445,7 +424,7 @@ describe('GlossaryClient', () => {
 
   it('returns life areas without language filter when omitted', async () => {
     const response = createLifeAreasResponse();
-    mock.onGet('/api/v3/glossary/life-areas').reply((config) => {
+    mockFetch.onGet('/api/v3/glossary/life-areas').reply((config) => {
       expect(config.params).not.toHaveProperty('language');
       expect(config.params).toMatchObject({ audience: 'developers' });
       return [200, { data: response }];
@@ -460,14 +439,14 @@ describe('GlossaryClient', () => {
 
   it('retrieves themes', async () => {
     const response = createThemesResponse();
-    mock.onGet('/api/v3/glossary/themes').reply(200, { data: response });
+    mockFetch.onGet('/api/v3/glossary/themes').reply(200, { data: response });
 
     await expect(client.getThemes()).resolves.toEqual(response);
   });
 
   it('retrieves zodiac types', async () => {
     const response = createZodiacTypesResponse();
-    mock.onGet('/api/v3/glossary/zodiac-types').reply(200, { data: response });
+    mockFetch.onGet('/api/v3/glossary/zodiac-types').reply(200, { data: response });
 
     await expect(client.getZodiacTypes()).resolves.toEqual(response);
   });

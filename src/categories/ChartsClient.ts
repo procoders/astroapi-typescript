@@ -1,4 +1,4 @@
-import type { AxiosRequestConfig } from 'axios';
+import type { RequestConfig } from '../types/config';
 
 import type {
   CompositeChartRequest,
@@ -51,7 +51,7 @@ export class ChartsClient extends BaseCategoryClient {
 
   async getNatalChart(
     request: NatalChartRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<NatalChartResponse> {
     validateSubject(request.subject, 'NatalChartRequest.subject');
     return this.http.post<NatalChartRequest, NatalChartResponse>(
@@ -63,7 +63,7 @@ export class ChartsClient extends BaseCategoryClient {
 
   async getCompositeChart(
     request: CompositeChartRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<CompositeChartResponse> {
     validateSubject(request.subject1, 'CompositeChartRequest.subject1');
     validateSubject(request.subject2, 'CompositeChartRequest.subject2');
@@ -76,7 +76,7 @@ export class ChartsClient extends BaseCategoryClient {
 
   async getSynastryChart(
     request: SynastryChartRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<SynastryChartResponse> {
     validateSubject(request.subject1, 'SynastryChartRequest.subject1');
     validateSubject(request.subject2, 'SynastryChartRequest.subject2');
@@ -89,7 +89,7 @@ export class ChartsClient extends BaseCategoryClient {
 
   async getTransitChart(
     request: TransitChartRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<TransitChartResponse> {
     validateSubject(request.natal_subject, 'TransitChartRequest.natal_subject');
     validateDateTimeLocation(request.transit_datetime, 'TransitChartRequest.transit_datetime');
@@ -102,7 +102,7 @@ export class ChartsClient extends BaseCategoryClient {
 
   async getSolarReturnChart(
     request: SolarReturnRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<SolarReturnChartResponse> {
     validateSubject(request.subject, 'SolarReturnRequest.subject');
     validateReturnYear(request.return_year, 'SolarReturnRequest.return_year');
@@ -116,7 +116,7 @@ export class ChartsClient extends BaseCategoryClient {
 
   async getLunarReturnChart(
     request: LunarReturnRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<LunarReturnChartResponse> {
     validateSubject(request.subject, 'LunarReturnRequest.subject');
     validateIsoDateString(request.return_date, 'LunarReturnRequest.return_date');
@@ -130,7 +130,7 @@ export class ChartsClient extends BaseCategoryClient {
 
   async getSolarReturnTransits(
     request: SolarReturnTransitRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<SolarReturnTransitChartResponse> {
     validateSubject(request.subject, 'SolarReturnTransitRequest.subject');
     validateReturnYear(request.return_year, 'SolarReturnTransitRequest.return_year');
@@ -146,7 +146,7 @@ export class ChartsClient extends BaseCategoryClient {
 
   async getLunarReturnTransits(
     request: LunarReturnTransitRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<LunarReturnTransitChartResponse> {
     validateSubject(request.subject, 'LunarReturnTransitRequest.subject');
     validateIsoDateString(request.return_date, 'LunarReturnTransitRequest.return_date');
@@ -162,7 +162,7 @@ export class ChartsClient extends BaseCategoryClient {
 
   async getProgressions(
     request: ProgressionRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<ProgressionChartResponse> {
     validateSubject(request.subject, 'ProgressionRequest.subject');
     validateIsoDateString(request.target_date, 'ProgressionRequest.target_date');
@@ -177,7 +177,7 @@ export class ChartsClient extends BaseCategoryClient {
 
   async getDirections(
     request: DirectionRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<DirectionChartResponse> {
     validateSubject(request.subject, 'DirectionRequest.subject');
     validateIsoDateString(request.target_date, 'DirectionRequest.target_date');
@@ -192,7 +192,7 @@ export class ChartsClient extends BaseCategoryClient {
 
   async getNatalTransits(
     request: NatalTransitRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<NatalTransitChartResponse> {
     validateSubject(request.subject, 'NatalTransitRequest.subject');
     validateOptionalDateRange(request.date_range ?? undefined, 'NatalTransitRequest.date_range');

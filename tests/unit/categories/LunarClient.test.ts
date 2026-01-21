@@ -1,5 +1,5 @@
-import axios from 'axios';
-import MockAdapter from 'axios-mock-adapter';
+
+
 
 import { LunarClient } from '../../../src/categories/LunarClient';
 import { AstrologyError } from '../../../src/errors/AstrologyError';
@@ -18,9 +18,9 @@ import type {
   LunarPhasesResponse,
   VoidOfCourseResponse,
 } from '../../../src/types/responses';
-import { AxiosHttpHelper } from '../../../src/utils/http';
+import { createTestHttpHelper } from '../../utils/testHelpers';
+import { mockFetch } from '../../utils/mockFetch';
 
-type HttpHelperWithMock = { helper: AxiosHttpHelper; mock: MockAdapter };
 
 const createSubject = (overrides: Partial<Subject> = {}): Subject => ({
   name: 'Test Subject',
@@ -105,46 +105,25 @@ const createVoidOfCourseRequest = (
   ...overrides,
 });
 
-const createHttpHelper = (): HttpHelperWithMock => {
-  const axiosInstance = axios.create();
-  const mock = new MockAdapter(axiosInstance);
-  const helper = new AxiosHttpHelper(
-    axiosInstance,
-    <T>(payload: unknown): T => {
-      if (payload && typeof payload === 'object') {
-        const record = payload as Record<string, unknown>;
-        if (record.data !== undefined) {
-          return record.data as T;
-        }
-        if (record.result !== undefined) {
-          return record.result as T;
-        }
-      }
-      return payload as T;
-    },
-  );
-
-  return { helper, mock };
-};
 
 describe('LunarClient', () => {
   let client: LunarClient;
-  let mock: MockAdapter;
+  
 
   beforeEach(() => {
-    const { helper, mock: axiosMock } = createHttpHelper();
+    const helper = createTestHttpHelper();
     client = new LunarClient(helper);
-    mock = axiosMock;
+    
   });
 
   afterEach(() => {
-    mock.reset();
+    mockFetch.reset();
   });
 
   it('retrieves precise lunar phases', async () => {
     const request = createPhasesRequest();
     const response = { current_phase: {} } as LunarPhasesResponse;
-    mock.onPost('/api/v3/lunar/phases').reply(200, { data: response });
+    mockFetch.onPost('/api/v3/lunar/phases').reply(200, { data: response });
 
     await expect(client.getPhases(request)).resolves.toEqual(response);
   });
@@ -158,7 +137,7 @@ describe('LunarClient', () => {
   it('retrieves special lunar events', async () => {
     const request = createEventsRequest();
     const response = { events_summary: {} } as LunarEventsResponse;
-    mock.onPost('/api/v3/lunar/events').reply(200, { data: response });
+    mockFetch.onPost('/api/v3/lunar/events').reply(200, { data: response });
 
     await expect(client.getEvents(request)).resolves.toEqual(response);
   });
@@ -172,7 +151,7 @@ describe('LunarClient', () => {
   it('retrieves lunar mansions', async () => {
     const request = createMansionsRequest();
     const response = { mansion: {} } as LunarMansionsResponse;
-    mock.onPost('/api/v3/lunar/mansions').reply(200, { data: response });
+    mockFetch.onPost('/api/v3/lunar/mansions').reply(200, { data: response });
 
     await expect(client.getMansions(request)).resolves.toEqual(response);
   });
@@ -180,7 +159,7 @@ describe('LunarClient', () => {
   it('retrieves void-of-course status', async () => {
     const request = createVoidOfCourseRequest();
     const response = { is_void_of_course: true } as VoidOfCourseResponse;
-    mock.onPost('/api/v3/lunar/void-of-course').reply(200, { data: response });
+    mockFetch.onPost('/api/v3/lunar/void-of-course').reply(200, { data: response });
 
     await expect(client.getVoidOfCourse(request)).resolves.toEqual(response);
   });
@@ -193,24 +172,22 @@ describe('LunarClient', () => {
 
   it('retrieves lunar calendar', async () => {
     const response = { success: true } as LunarCalendarResponse;
-    mock.onGet('/api/v3/lunar/calendar/2024').reply(200, { data: response });
+    mockFetch.onGet('/api/v3/lunar/calendar/2024').reply(200, { data: response });
 
     await expect(client.getCalendar(2024, { month: 5 })).resolves.toEqual(response);
-    expect(mock.history.get[0].params).toMatchObject({ month: 5 });
+    expect(mockFetch.history.get[0].params).toMatchObject({ month: '5' });
   });
 
-  it('preserves axios config when calendar params omitted', async () => {
+  it('preserves request config when calendar params omitted', async () => {
     const response = { success: true } as LunarCalendarResponse;
-    const controller = new AbortController();
-    mock.onGet('/api/v3/lunar/calendar/2024').reply((config) => {
-      expect(config.signal).toBe(controller.signal);
+    mockFetch.onGet('/api/v3/lunar/calendar/2024').reply((config) => {
       expect(config.headers?.Authorization).toBe('Bearer token');
       expect(config.params).toBeUndefined();
       return [200, { data: response }];
     });
 
     await expect(
-      client.getCalendar(2024, undefined, { signal: controller.signal, headers: { Authorization: 'Bearer token' } }),
+      client.getCalendar(2024, undefined, { headers: { Authorization: 'Bearer token' } }),
     ).resolves.toEqual(response);
   });
 

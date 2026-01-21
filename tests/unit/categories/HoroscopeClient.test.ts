@@ -1,5 +1,5 @@
-import axios from 'axios';
-import MockAdapter from 'axios-mock-adapter';
+
+
 
 import { HoroscopeClient } from '../../../src/categories/HoroscopeClient';
 import { AstrologyError } from '../../../src/errors/AstrologyError';
@@ -23,30 +23,8 @@ import type {
   SunSignWeeklyHoroscopeResponse,
   SunSignYearlyHoroscopeResponse,
 } from '../../../src/types/responses';
-import { AxiosHttpHelper } from '../../../src/utils/http';
-
-const createHoroscopeClient = () => {
-  const axiosInstance = axios.create();
-  const mock = new MockAdapter(axiosInstance);
-
-  const helper = new AxiosHttpHelper(
-    axiosInstance,
-    <T>(payload: unknown): T => {
-      if (payload && typeof payload === 'object') {
-        const record = payload as Record<string, unknown>;
-        if (record.data !== undefined) {
-          return record.data as T;
-        }
-        if (record.result !== undefined) {
-          return record.result as T;
-        }
-      }
-      return payload as T;
-    },
-  );
-
-  return { client: new HoroscopeClient(helper), mock };
-};
+import { createTestHttpHelper } from '../../utils/testHelpers';
+import { mockFetch } from '../../utils/mockFetch';
 
 const createSubject = () => ({
   name: 'Test User',
@@ -63,16 +41,14 @@ const createSubject = () => ({
 
 describe('HoroscopeClient', () => {
   let client: HoroscopeClient;
-  let mock: MockAdapter;
 
   beforeEach(() => {
-    const factory = createHoroscopeClient();
-    client = factory.client;
-    mock = factory.mock;
+    const helper = createTestHttpHelper();
+    client = new HoroscopeClient(helper);
   });
 
   afterEach(() => {
-    mock.reset();
+    mockFetch.reset();
   });
 
   it('retrieves personal daily horoscope', async () => {
@@ -85,7 +61,7 @@ describe('HoroscopeClient', () => {
       planetary_influences: [],
     };
 
-    mock.onPost('/api/v3/horoscope/personal/daily').reply(200, { data: response });
+    mockFetch.onPost('/api/v3/horoscope/personal/daily').reply(200, { data: response });
 
     await expect(client.getPersonalDailyHoroscope(request)).resolves.toEqual(response);
   });
@@ -109,7 +85,7 @@ describe('HoroscopeClient', () => {
     const request: PersonalTextHoroscopeRequest = { subject: createSubject(), format: 'paragraph' };
     const response: HoroscopeTextResponse = { text: 'A wonderful day awaits.' };
 
-    mock.onPost('/api/v3/horoscope/personal/daily/text').reply(200, { result: response });
+    mockFetch.onPost('/api/v3/horoscope/personal/daily/text').reply(200, { result: response });
 
     await expect(client.getPersonalDailyHoroscopeText(request)).resolves.toEqual(response);
   });
@@ -133,7 +109,7 @@ describe('HoroscopeClient', () => {
       planetary_influences: [],
     };
 
-    mock.onPost('/api/v3/horoscope/sign/daily').reply(200, response);
+    mockFetch.onPost('/api/v3/horoscope/sign/daily').reply(200, response);
 
     await expect(client.getSignDailyHoroscope(request)).resolves.toEqual(response);
   });
@@ -151,7 +127,7 @@ describe('HoroscopeClient', () => {
     const request: TextHoroscopeRequest = { sign: 'Tau', format: 'short' };
     const response: HoroscopeTextResponse = { text: 'Stay focused on essentials today.' };
 
-    mock.onPost('/api/v3/horoscope/sign/daily/text').reply(200, { data: response });
+    mockFetch.onPost('/api/v3/horoscope/sign/daily/text').reply(200, { data: response });
 
     await expect(client.getSignDailyHoroscopeText(request)).resolves.toEqual(response);
   });
@@ -160,7 +136,7 @@ describe('HoroscopeClient', () => {
     const request: SunSignWeeklyHoroscopeRequest = { sign: 'Gem', start_date: '2024-03-11' };
     const response: SunSignWeeklyHoroscopeResponse = { week_start: '2024-03-11' };
 
-    mock.onPost('/api/v3/horoscope/sign/weekly').reply(200, response);
+    mockFetch.onPost('/api/v3/horoscope/sign/weekly').reply(200, response);
 
     await expect(client.getSignWeeklyHoroscope(request)).resolves.toEqual(response);
   });
@@ -178,7 +154,7 @@ describe('HoroscopeClient', () => {
     const request: TextWeeklyHoroscopeRequest = { sign: 'Cancer', format: 'paragraph' };
     const response: HoroscopeTextResponse = { text: 'A balanced week awaits you.' };
 
-    mock.onPost('/api/v3/horoscope/sign/weekly/text').reply(200, { result: response });
+    mockFetch.onPost('/api/v3/horoscope/sign/weekly/text').reply(200, { result: response });
 
     await expect(client.getSignWeeklyHoroscopeText(request)).resolves.toEqual(response);
   });
@@ -187,7 +163,7 @@ describe('HoroscopeClient', () => {
     const request: SunSignMonthlyHoroscopeRequest = { sign: 'Leo', month: '2024-03' };
     const response: SunSignMonthlyHoroscopeResponse = { month: '2024-03' };
 
-    mock.onPost('/api/v3/horoscope/sign/monthly').reply(200, { data: response });
+    mockFetch.onPost('/api/v3/horoscope/sign/monthly').reply(200, { data: response });
 
     await expect(client.getSignMonthlyHoroscope(request)).resolves.toEqual(response);
   });
@@ -205,7 +181,7 @@ describe('HoroscopeClient', () => {
     const request: TextMonthlyHoroscopeRequest = { sign: 'Virgo', month: '2024-04' };
     const response: HoroscopeTextResponse = { text: 'Focus on practical improvements this month.' };
 
-    mock.onPost('/api/v3/horoscope/sign/monthly/text').reply(200, response);
+    mockFetch.onPost('/api/v3/horoscope/sign/monthly/text').reply(200, response);
 
     await expect(client.getSignMonthlyHoroscopeText(request)).resolves.toEqual(response);
   });
@@ -214,7 +190,7 @@ describe('HoroscopeClient', () => {
     const request: SunSignYearlyHoroscopeRequest = { sign: 'Capricorn', year: 2025 };
     const response: SunSignYearlyHoroscopeResponse = { year: 2025 };
 
-    mock.onPost('/api/v3/horoscope/sign/yearly').reply(200, { data: response });
+    mockFetch.onPost('/api/v3/horoscope/sign/yearly').reply(200, { data: response });
 
     await expect(client.getSignYearlyHoroscope(request)).resolves.toEqual(response);
   });
@@ -238,7 +214,7 @@ describe('HoroscopeClient', () => {
     };
     const response: ChineseHoroscopeResponse = { pillars: [] };
 
-    mock.onPost('/api/v3/horoscope/chinese/bazi').reply(200, { result: response });
+    mockFetch.onPost('/api/v3/horoscope/chinese/bazi').reply(200, { result: response });
 
     await expect(client.getChineseHoroscope(request)).resolves.toEqual(response);
   });

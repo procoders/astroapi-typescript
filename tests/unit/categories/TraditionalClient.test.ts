@@ -1,5 +1,5 @@
-import axios from 'axios';
-import MockAdapter from 'axios-mock-adapter';
+
+
 
 import { TraditionalClient } from '../../../src/categories/TraditionalClient';
 import { AstrologyError } from '../../../src/errors/AstrologyError';
@@ -19,9 +19,9 @@ import type {
   TraditionalGlossaryResponse,
   TraditionalLotsResponse,
 } from '../../../src/types/responses';
-import { AxiosHttpHelper } from '../../../src/utils/http';
+import { createTestHttpHelper } from '../../utils/testHelpers';
+import { mockFetch } from '../../utils/mockFetch';
 
-type HttpHelperWithMock = { helper: AxiosHttpHelper; mock: MockAdapter };
 
 const createSubject = (overrides: Partial<Subject> = {}): Subject => ({
   name: 'Traditional Subject',
@@ -66,46 +66,25 @@ const createProfectionTimelineRequest = (
   ...overrides,
 });
 
-const createHttpHelper = (): HttpHelperWithMock => {
-  const axiosInstance = axios.create();
-  const mock = new MockAdapter(axiosInstance);
-  const helper = new AxiosHttpHelper(
-    axiosInstance,
-    <T>(payload: unknown): T => {
-      if (payload && typeof payload === 'object') {
-        const record = payload as Record<string, unknown>;
-        if (record.data !== undefined) {
-          return record.data as T;
-        }
-        if (record.result !== undefined) {
-          return record.result as T;
-        }
-      }
-      return payload as T;
-    },
-  );
-
-  return { helper, mock };
-};
 
 describe('TraditionalClient', () => {
   let client: TraditionalClient;
-  let mock: MockAdapter;
+  
 
   beforeEach(() => {
-    const { helper, mock: axiosMock } = createHttpHelper();
+    const helper = createTestHttpHelper();
     client = new TraditionalClient(helper);
-    mock = axiosMock;
+    
   });
 
   afterEach(() => {
-    mock.reset();
+    mockFetch.reset();
   });
 
   it('retrieves traditional analysis', async () => {
     const request = createTraditionalRequest();
     const response = { summary: {} } as TraditionalAnalysisResponse;
-    mock.onPost('/api/v3/traditional/analysis').reply(200, { data: response });
+    mockFetch.onPost('/api/v3/traditional/analysis').reply(200, { data: response });
 
     await expect(client.getAnalysis(request)).resolves.toEqual(response);
   });
@@ -127,7 +106,7 @@ describe('TraditionalClient', () => {
   it('retrieves dignities analysis', async () => {
     const request = createTraditionalRequest();
     const response = { dignity_scores: {} } as DignitiesAnalysisResponse;
-    mock.onPost('/api/v3/traditional/dignities').reply(200, { data: response });
+    mockFetch.onPost('/api/v3/traditional/dignities').reply(200, { data: response });
 
     await expect(client.getDignitiesAnalysis(request)).resolves.toEqual(response);
   });
@@ -135,7 +114,7 @@ describe('TraditionalClient', () => {
   it('retrieves lots analysis', async () => {
     const request = createTraditionalRequest();
     const response = { lots: {} } as TraditionalLotsResponse;
-    mock.onPost('/api/v3/traditional/lots').reply(200, { data: response });
+    mockFetch.onPost('/api/v3/traditional/lots').reply(200, { data: response });
 
     await expect(client.getLotsAnalysis(request)).resolves.toEqual(response);
   });
@@ -143,7 +122,7 @@ describe('TraditionalClient', () => {
   it('retrieves profections analysis', async () => {
     const request = createTraditionalRequest();
     const response = { current_profection: {} } as ProfectionsAnalysisResponse;
-    mock.onPost('/api/v3/traditional/profections').reply(200, { data: response });
+    mockFetch.onPost('/api/v3/traditional/profections').reply(200, { data: response });
 
     await expect(client.getProfectionsAnalysis(request)).resolves.toEqual(response);
   });
@@ -151,7 +130,7 @@ describe('TraditionalClient', () => {
   it('retrieves annual profection', async () => {
     const request = createAnnualProfectionRequest();
     const response = { lord_of_the_year: 'Venus' } as AnnualProfectionResponse;
-    mock.onPost('/api/v3/traditional/analysis/annual-profection').reply(200, { data: response });
+    mockFetch.onPost('/api/v3/traditional/analysis/annual-profection').reply(200, { data: response });
 
     await expect(client.getAnnualProfection(request)).resolves.toEqual(response);
   });
@@ -165,7 +144,7 @@ describe('TraditionalClient', () => {
   it('retrieves profection timeline', async () => {
     const request = createProfectionTimelineRequest();
     const response = { timeline: [] } as ProfectionTimelineResponse;
-    mock.onPost('/api/v3/traditional/analysis/profection-timeline').reply(200, { data: response });
+    mockFetch.onPost('/api/v3/traditional/analysis/profection-timeline').reply(200, { data: response });
 
     await expect(client.getProfectionTimeline(request)).resolves.toEqual(response);
   });
@@ -178,28 +157,28 @@ describe('TraditionalClient', () => {
 
   it('retrieves traditional points glossary', async () => {
     const response = { items: [] } as TraditionalGlossaryResponse;
-    mock.onGet('/api/v3/traditional/glossary/traditional-points').reply(200, { data: response });
+    mockFetch.onGet('/api/v3/traditional/glossary/traditional-points').reply(200, { data: response });
 
     await expect(client.getTraditionalPointsGlossary()).resolves.toEqual(response);
   });
 
   it('retrieves dignities glossary', async () => {
     const response = { dignities: [] } as TraditionalGlossaryResponse;
-    mock.onGet('/api/v3/traditional/glossary/dignities').reply(200, { data: response });
+    mockFetch.onGet('/api/v3/traditional/glossary/dignities').reply(200, { data: response });
 
     await expect(client.getDignitiesGlossary()).resolves.toEqual(response);
   });
 
   it('retrieves profection houses glossary', async () => {
     const response = { houses: [] } as TraditionalGlossaryResponse;
-    mock.onGet('/api/v3/traditional/glossary/profection-houses').reply(200, { data: response });
+    mockFetch.onGet('/api/v3/traditional/glossary/profection-houses').reply(200, { data: response });
 
     await expect(client.getProfectionHousesGlossary()).resolves.toEqual(response);
   });
 
   it('retrieves traditional capabilities', async () => {
     const response = { features: [] } as TraditionalCapabilitiesResponse;
-    mock.onGet('/api/v3/traditional/capabilities').reply(200, { data: response });
+    mockFetch.onGet('/api/v3/traditional/capabilities').reply(200, { data: response });
 
     await expect(client.getCapabilities()).resolves.toEqual(response);
   });

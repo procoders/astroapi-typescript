@@ -1,4 +1,4 @@
-import type { AxiosRequestConfig } from 'axios';
+import type { RequestConfig } from '../types/config';
 
 import {
   FixedStarsConjunctionsRequest,
@@ -28,7 +28,7 @@ export class FixedStarsClient extends BaseCategoryClient {
 
   async getPositions(
     request: FixedStarsPositionsRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<FixedStarsPositionsResponse> {
     validateFixedStarsPositionsRequest(request);
     return this.http.post<FixedStarsPositionsRequest, FixedStarsPositionsResponse>(
@@ -40,7 +40,7 @@ export class FixedStarsClient extends BaseCategoryClient {
 
   async getConjunctions(
     request: FixedStarsConjunctionsRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<FixedStarsConjunctionsResponse> {
     validateFixedStarsConjunctionsRequest(request);
     return this.http.post<FixedStarsConjunctionsRequest, FixedStarsConjunctionsResponse>(
@@ -52,7 +52,7 @@ export class FixedStarsClient extends BaseCategoryClient {
 
   async generateReport(
     request: FixedStarsReportRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<FixedStarsReportResponse> {
     validateFixedStarsReportRequest(request);
     return this.http.post<FixedStarsReportRequest, FixedStarsReportResponse>(
@@ -62,7 +62,7 @@ export class FixedStarsClient extends BaseCategoryClient {
     );
   }
 
-  async getPresets(config?: AxiosRequestConfig): Promise<FixedStarsPresetsResponse> {
+  async getPresets(config?: RequestConfig): Promise<FixedStarsPresetsResponse> {
     return this.http.get<FixedStarsPresetsResponse>(this.buildUrl('presets'), config);
   }
 }

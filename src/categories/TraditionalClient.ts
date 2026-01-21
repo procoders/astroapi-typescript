@@ -1,4 +1,4 @@
-import type { AxiosRequestConfig } from 'axios';
+import type { RequestConfig } from '../types/config';
 
 import {
   AnnualProfectionRequest,
@@ -32,7 +32,7 @@ export class TraditionalClient extends BaseCategoryClient {
 
   async getAnalysis(
     request: TraditionalAnalysisRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<TraditionalAnalysisResponse> {
     validateTraditionalAnalysisRequest(request);
     return this.http.post<TraditionalAnalysisRequest, TraditionalAnalysisResponse>(
@@ -44,7 +44,7 @@ export class TraditionalClient extends BaseCategoryClient {
 
   async getDignitiesAnalysis(
     request: TraditionalAnalysisRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<DignitiesAnalysisResponse> {
     validateTraditionalAnalysisRequest(request, 'TraditionalDignitiesRequest');
     return this.http.post<TraditionalAnalysisRequest, DignitiesAnalysisResponse>(
@@ -56,7 +56,7 @@ export class TraditionalClient extends BaseCategoryClient {
 
   async getLotsAnalysis(
     request: TraditionalAnalysisRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<TraditionalLotsResponse> {
     validateTraditionalAnalysisRequest(request, 'TraditionalLotsRequest');
     return this.http.post<TraditionalAnalysisRequest, TraditionalLotsResponse>(
@@ -68,7 +68,7 @@ export class TraditionalClient extends BaseCategoryClient {
 
   async getProfectionsAnalysis(
     request: TraditionalAnalysisRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<ProfectionsAnalysisResponse> {
     validateTraditionalAnalysisRequest(request, 'TraditionalProfectionsRequest');
     return this.http.post<TraditionalAnalysisRequest, ProfectionsAnalysisResponse>(
@@ -80,7 +80,7 @@ export class TraditionalClient extends BaseCategoryClient {
 
   async getAnnualProfection(
     request: AnnualProfectionRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<AnnualProfectionResponse> {
     validateAnnualProfectionRequest(request);
     return this.http.post<AnnualProfectionRequest, AnnualProfectionResponse>(
@@ -92,7 +92,7 @@ export class TraditionalClient extends BaseCategoryClient {
 
   async getProfectionTimeline(
     request: ProfectionTimelineRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<ProfectionTimelineResponse> {
     validateProfectionTimelineRequest(request);
     return this.http.post<ProfectionTimelineRequest, ProfectionTimelineResponse>(
@@ -103,7 +103,7 @@ export class TraditionalClient extends BaseCategoryClient {
   }
 
   async getTraditionalPointsGlossary(
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<TraditionalGlossaryResponse> {
     return this.http.get<TraditionalGlossaryResponse>(
       this.buildUrl('glossary', 'traditional-points'),
@@ -111,7 +111,7 @@ export class TraditionalClient extends BaseCategoryClient {
     );
   }
 
-  async getDignitiesGlossary(config?: AxiosRequestConfig): Promise<TraditionalGlossaryResponse> {
+  async getDignitiesGlossary(config?: RequestConfig): Promise<TraditionalGlossaryResponse> {
     return this.http.get<TraditionalGlossaryResponse>(
       this.buildUrl('glossary', 'dignities'),
       config,
@@ -119,7 +119,7 @@ export class TraditionalClient extends BaseCategoryClient {
   }
 
   async getProfectionHousesGlossary(
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<TraditionalGlossaryResponse> {
     return this.http.get<TraditionalGlossaryResponse>(
       this.buildUrl('glossary', 'profection-houses'),
@@ -127,7 +127,7 @@ export class TraditionalClient extends BaseCategoryClient {
     );
   }
 
-  async getCapabilities(config?: AxiosRequestConfig): Promise<TraditionalCapabilitiesResponse> {
+  async getCapabilities(config?: RequestConfig): Promise<TraditionalCapabilitiesResponse> {
     return this.http.get<TraditionalCapabilitiesResponse>(
       this.buildUrl('capabilities'),
       config,

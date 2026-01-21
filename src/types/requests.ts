@@ -1,4 +1,4 @@
-import { AxiosRequestConfig } from 'axios';
+import type { RequestConfig } from './config';
 import type { components } from './generated/api';
 
 type Schemas = components['schemas'];
@@ -556,7 +556,7 @@ export interface CitySearchParams {
 export interface GlossaryRequestConfig {
   params?: CitySearchParams;
   signal?: AbortSignal;
-  axiosOptions?: AxiosRequestConfig;
+  requestOptions?: RequestConfig;
 }
 
 export interface PersonalizedHoroscopeRequest {

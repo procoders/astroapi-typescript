@@ -1,4 +1,4 @@
-import type { AxiosRequestConfig } from 'axios';
+import type { RequestConfig } from '../types/config';
 
 import {
   BaZiRequest,
@@ -38,9 +38,9 @@ type ChineseSolarTermsParams = Parameters<typeof validateChineseSolarTermsParams
 type ChineseZodiacParams = Parameters<typeof validateChineseZodiacParams>[0];
 
 const mergeConfigWithParams = (
-  config: AxiosRequestConfig | undefined,
-  params?: Record<string, unknown>,
-): AxiosRequestConfig | undefined => {
+  config: RequestConfig | undefined,
+  params?: Record<string, string | number | boolean | null | undefined>,
+): RequestConfig | undefined => {
   if (!params || Object.keys(params).length === 0) {
     return config;
   }
@@ -61,14 +61,14 @@ export class ChineseClient extends BaseCategoryClient {
     super(http, ChineseClient.API_PREFIX);
   }
 
-  async calculateBaZi(request: BaZiRequest, config?: AxiosRequestConfig): Promise<BaZiResponse> {
+  async calculateBaZi(request: BaZiRequest, config?: RequestConfig): Promise<BaZiResponse> {
     validateBaZiRequest(request);
     return this.http.post<BaZiRequest, BaZiResponse>(this.buildUrl('bazi'), request, config);
   }
 
   async calculateCompatibility(
     request: MultipleSubjectsRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<ChineseCompatibilityResponse> {
     validateChineseCompatibilityRequest(request);
     return this.http.post<MultipleSubjectsRequest, ChineseCompatibilityResponse>(
@@ -80,7 +80,7 @@ export class ChineseClient extends BaseCategoryClient {
 
   async calculateLuckPillars(
     request: LuckPillarsRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<LuckPillarsResponse> {
     validateLuckPillarsRequest(request);
     return this.http.post<LuckPillarsRequest, LuckPillarsResponse>(
@@ -92,7 +92,7 @@ export class ChineseClient extends BaseCategoryClient {
 
   async calculateMingGua(
     request: SingleSubjectRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<MingGuaResponse> {
     validateMingGuaRequest(request);
     return this.http.post<SingleSubjectRequest, MingGuaResponse>(
@@ -104,7 +104,7 @@ export class ChineseClient extends BaseCategoryClient {
 
   async getYearlyForecast(
     request: ChineseYearlyRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<ChineseYearlyForecastResponse> {
     validateChineseYearlyRequest(request);
     return this.http.post<ChineseYearlyRequest, ChineseYearlyForecastResponse>(
@@ -117,7 +117,7 @@ export class ChineseClient extends BaseCategoryClient {
   async analyzeYearElements(
     year: number,
     params?: ChineseYearElementsParams,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<ChineseElementsResponse> {
     validateChineseYearElementsYear(year);
     const normalizedParams = validateChineseYearElementsParams(params);
@@ -132,7 +132,7 @@ export class ChineseClient extends BaseCategoryClient {
   async getSolarTerms(
     year: number,
     params?: ChineseSolarTermsParams,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<ChineseSolarTermsResponse> {
     validateChineseSolarTermsYear(year);
     const normalizedParams = validateChineseSolarTermsParams(params);
@@ -147,7 +147,7 @@ export class ChineseClient extends BaseCategoryClient {
   async getZodiacAnimal(
     animal: string,
     params?: ChineseZodiacParams,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<ChineseZodiacResponse> {
     const normalizedAnimal = normalizeChineseZodiacAnimal(animal);
     validateChineseZodiacParams(params);

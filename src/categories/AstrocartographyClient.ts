@@ -1,4 +1,4 @@
-import type { AxiosRequestConfig } from 'axios';
+import type { RequestConfig } from '../types/config';
 
 import {
   AstrocartographyLinesRequest,
@@ -44,7 +44,7 @@ export class AstrocartographyClient extends BaseCategoryClient {
 
   async getLines(
     request: AstrocartographyLinesRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<AstrocartographyLinesResponse> {
     validateAstrocartographyLinesRequest(request);
     return this.http.post<AstrocartographyLinesRequest, AstrocartographyLinesResponse>(
@@ -56,7 +56,7 @@ export class AstrocartographyClient extends BaseCategoryClient {
 
   async generateMap(
     request: AstrocartographyMapRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<AstrocartographyMapResponse> {
     validateAstrocartographyMapRequest(request);
     return this.http.post<AstrocartographyMapRequest, AstrocartographyMapResponse>(
@@ -68,7 +68,7 @@ export class AstrocartographyClient extends BaseCategoryClient {
 
   async generateParanMap(
     request: ParanMapRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<ParanMapResponse> {
     validateParanMapRequest(request);
     return this.http.post<ParanMapRequest, ParanMapResponse>(
@@ -80,7 +80,7 @@ export class AstrocartographyClient extends BaseCategoryClient {
 
   async analyzeLocation(
     request: LocationAnalysisRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<LocationAnalysisResponse> {
     validateLocationAnalysisRequest(request);
     return this.http.post<LocationAnalysisRequest, LocationAnalysisResponse>(
@@ -92,7 +92,7 @@ export class AstrocartographyClient extends BaseCategoryClient {
 
   async compareLocations(
     request: CompareLocationsRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<CompareLocationsResponse> {
     validateCompareLocationsRequest(request);
     return this.http.post<CompareLocationsRequest, CompareLocationsResponse>(
@@ -104,7 +104,7 @@ export class AstrocartographyClient extends BaseCategoryClient {
 
   async findPowerZones(
     request: PowerZonesRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<PowerZonesResponse> {
     validatePowerZonesRequest(request);
     return this.http.post<PowerZonesRequest, PowerZonesResponse>(
@@ -116,7 +116,7 @@ export class AstrocartographyClient extends BaseCategoryClient {
 
   async searchLocations(
     request: SearchLocationsRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<SearchLocationsResponse> {
     validateSearchLocationsRequest(request);
     return this.http.post<SearchLocationsRequest, SearchLocationsResponse>(
@@ -128,7 +128,7 @@ export class AstrocartographyClient extends BaseCategoryClient {
 
   async generateRelocationChart(
     request: RelocationChartRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<RelocationChartResponse> {
     validateRelocationChartRequest(request);
     return this.http.post<RelocationChartRequest, RelocationChartResponse>(
@@ -138,11 +138,11 @@ export class AstrocartographyClient extends BaseCategoryClient {
     );
   }
 
-  async getLineMeanings(config?: AxiosRequestConfig): Promise<LineMeaningsResponse> {
+  async getLineMeanings(config?: RequestConfig): Promise<LineMeaningsResponse> {
     return this.http.get<LineMeaningsResponse>(this.buildUrl('line-meanings'), config);
   }
 
-  async getSupportedFeatures(config?: AxiosRequestConfig): Promise<SupportedFeaturesResponse> {
+  async getSupportedFeatures(config?: RequestConfig): Promise<SupportedFeaturesResponse> {
     return this.http.get<SupportedFeaturesResponse>(this.buildUrl('supported-features'), config);
   }
 }

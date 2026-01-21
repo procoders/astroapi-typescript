@@ -1,5 +1,5 @@
-import axios from 'axios';
-import MockAdapter from 'axios-mock-adapter';
+
+
 
 import { NumerologyClient } from '../../../src/categories/NumerologyClient';
 import { AstrologyError } from '../../../src/errors/AstrologyError';
@@ -9,9 +9,9 @@ import type {
   NumerologyComprehensiveResponse,
   NumerologyCoreResponse,
 } from '../../../src/types/responses';
-import { AxiosHttpHelper } from '../../../src/utils/http';
+import { createTestHttpHelper } from '../../utils/testHelpers';
+import { mockFetch } from '../../utils/mockFetch';
 
-type HttpHelperWithMock = { helper: AxiosHttpHelper; mock: MockAdapter };
 
 const createSubject = (overrides: Partial<Subject> = {}): Subject => ({
   name: 'Test Person',
@@ -62,46 +62,25 @@ const createCompatibilityRequest = (
   ...overrides,
 });
 
-const createHttpHelper = (): HttpHelperWithMock => {
-  const axiosInstance = axios.create();
-  const mock = new MockAdapter(axiosInstance);
-  const helper = new AxiosHttpHelper(
-    axiosInstance,
-    <T>(payload: unknown): T => {
-      if (payload && typeof payload === 'object') {
-        const record = payload as Record<string, unknown>;
-        if (record.data !== undefined) {
-          return record.data as T;
-        }
-        if (record.result !== undefined) {
-          return record.result as T;
-        }
-      }
-      return payload as T;
-    },
-  );
-
-  return { helper, mock };
-};
 
 describe('NumerologyClient', () => {
   let client: NumerologyClient;
-  let mock: MockAdapter;
+  
 
   beforeEach(() => {
-    const { helper, mock: axiosMock } = createHttpHelper();
+    const helper = createTestHttpHelper();
     client = new NumerologyClient(helper);
-    mock = axiosMock;
+    
   });
 
   afterEach(() => {
-    mock.reset();
+    mockFetch.reset();
   });
 
   it('retrieves numerology core numbers', async () => {
     const request = createCoreRequest();
     const response = { core_numbers: {} } as NumerologyCoreResponse;
-    mock.onPost('/api/v3/numerology/core-numbers').reply(200, { data: response });
+    mockFetch.onPost('/api/v3/numerology/core-numbers').reply(200, { data: response });
 
     await expect(client.getCoreNumbers(request)).resolves.toEqual(response);
   });
@@ -115,7 +94,7 @@ describe('NumerologyClient', () => {
   it('retrieves comprehensive numerology report', async () => {
     const request = createComprehensiveRequest();
     const response = { report: {} } as NumerologyComprehensiveResponse;
-    mock.onPost('/api/v3/numerology/comprehensive').reply(200, { data: response });
+    mockFetch.onPost('/api/v3/numerology/comprehensive').reply(200, { data: response });
 
     await expect(client.getComprehensiveReport(request)).resolves.toEqual(response);
   });
@@ -123,7 +102,7 @@ describe('NumerologyClient', () => {
   it('retrieves numerology compatibility', async () => {
     const request = createCompatibilityRequest();
     const response = { compatibility: {} } as NumerologyCompatibilityResponse;
-    mock.onPost('/api/v3/numerology/compatibility').reply(200, { data: response });
+    mockFetch.onPost('/api/v3/numerology/compatibility').reply(200, { data: response });
 
     await expect(client.analyzeCompatibility(request)).resolves.toEqual(response);
   });

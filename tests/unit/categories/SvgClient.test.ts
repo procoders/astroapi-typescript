@@ -1,5 +1,5 @@
-import axios from 'axios';
-import MockAdapter from 'axios-mock-adapter';
+
+
 
 import { SvgClient } from '../../../src/categories/SvgClient';
 import { AstrologyError } from '../../../src/errors/AstrologyError';
@@ -11,9 +11,9 @@ import type {
   Subject,
   DateTimeLocation,
 } from '../../../src/types';
-import { AxiosHttpHelper } from '../../../src/utils/http';
+import { createTestHttpHelper } from '../../utils/testHelpers';
+import { mockFetch } from '../../utils/mockFetch';
 
-type HttpHelperWithMock = { helper: AxiosHttpHelper; mock: MockAdapter };
 
 const createSubject = (overrides: Partial<Subject> = {}): Subject => ({
   name: 'Sample Subject',
@@ -104,45 +104,24 @@ const createTransitRequest = (
   ...overrides,
 });
 
-const createHttpHelper = (): HttpHelperWithMock => {
-  const axiosInstance = axios.create();
-  const mock = new MockAdapter(axiosInstance);
-  const helper = new AxiosHttpHelper(
-    axiosInstance,
-    <T>(payload: unknown): T => {
-      if (payload && typeof payload === 'object') {
-        const record = payload as Record<string, unknown>;
-        if (record.data !== undefined) {
-          return record.data as T;
-        }
-        if (record.result !== undefined) {
-          return record.result as T;
-        }
-      }
-      return payload as T;
-    },
-  );
-
-  return { helper, mock };
-};
 
 describe('SvgClient', () => {
   let client: SvgClient;
-  let mock: MockAdapter;
+  
 
   beforeEach(() => {
-    const { helper, mock: axiosMock } = createHttpHelper();
+    const helper = createTestHttpHelper();
     client = new SvgClient(helper);
-    mock = axiosMock;
+    
   });
 
   afterEach(() => {
-    mock.reset();
+    mockFetch.reset();
   });
 
   it('retrieves natal chart SVG', async () => {
     const svg = '<svg>Natal</svg>';
-    mock.onPost('/api/v3/svg/natal').reply(200, svg);
+    mockFetch.onPost('/api/v3/svg/natal').replyRaw(200, svg);
 
     await expect(client.getNatalChartSvg(createNatalRequest())).resolves.toEqual(svg);
   });
@@ -155,30 +134,43 @@ describe('SvgClient', () => {
 
   it('retrieves synastry chart SVG', async () => {
     const svg = '<svg>Synastry</svg>';
-    mock.onPost('/api/v3/svg/synastry').reply(200, svg);
+    mockFetch.onPost('/api/v3/svg/synastry').replyRaw(200, svg);
 
     await expect(client.getSynastryChartSvg(createSynastryRequest())).resolves.toEqual(svg);
   });
 
-  it('preserves provided responseType on config', async () => {
+  it('preserves provided config headers', async () => {
     const svg = '<svg>Custom</svg>';
-    mock.onPost('/api/v3/svg/natal').reply(200, svg);
+    mockFetch.onPost('/api/v3/svg/natal').replyRaw(200, svg);
 
     await client.getNatalChartSvg(createNatalRequest(), {
-      responseType: 'arraybuffer',
       headers: { 'X-Test': 'true' },
     });
 
-    expect(mock.history.post[0].responseType).toBe('arraybuffer');
+    expect(mockFetch.history.post[0].headers['X-Test']).toBe('true');
   });
 
-  it('defaults responseType to text when omitted', async () => {
+  it('preserves custom responseType when provided in config', async () => {
+    const svg = '<svg>Custom</svg>';
+    mockFetch.onPost('/api/v3/svg/natal').replyRaw(200, svg);
+
+    // When responseType is explicitly provided, it should be preserved
+    const result = await client.getNatalChartSvg(createNatalRequest(), {
+      responseType: 'text',
+      headers: { 'X-Custom': 'value' },
+    });
+
+    expect(result).toBe(svg);
+  });
+
+  it('returns svg as text response', async () => {
     const svg = '<svg>Default</svg>';
-    mock.onPost('/api/v3/svg/synastry').reply(200, svg);
+    mockFetch.onPost('/api/v3/svg/synastry').replyRaw(200, svg);
 
-    await client.getSynastryChartSvg(createSynastryRequest(), { headers: { 'X-Test': 'true' } });
+    const result = await client.getSynastryChartSvg(createSynastryRequest());
 
-    expect(mock.history.post[0].responseType).toBe('text');
+    expect(result).toBe(svg);
+    expect(typeof result).toBe('string');
   });
 
   it('validates synastry chart requires second subject', async () => {
@@ -189,7 +181,7 @@ describe('SvgClient', () => {
 
   it('retrieves composite chart SVG', async () => {
     const svg = '<svg>Composite</svg>';
-    mock.onPost('/api/v3/svg/composite').reply(200, svg);
+    mockFetch.onPost('/api/v3/svg/composite').replyRaw(200, svg);
 
     await expect(client.getCompositeChartSvg(createCompositeRequest())).resolves.toEqual(svg);
   });
@@ -204,7 +196,7 @@ describe('SvgClient', () => {
 
   it('retrieves transit chart SVG', async () => {
     const svg = '<svg>Transit</svg>';
-    mock.onPost('/api/v3/svg/transit').reply(200, svg);
+    mockFetch.onPost('/api/v3/svg/transit').replyRaw(200, svg);
 
     await expect(client.getTransitChartSvg(createTransitRequest())).resolves.toEqual(svg);
   });

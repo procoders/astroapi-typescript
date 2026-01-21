@@ -1,11 +1,3 @@
-import axios, {
-  AxiosError,
-  AxiosInstance,
-  AxiosRequestConfig,
-  AxiosRequestHeaders,
-  AxiosResponse,
-  isAxiosError,
-} from 'axios';
 import {
   AstrologyClientConfig,
   AstrologyLogger,
@@ -15,7 +7,8 @@ import {
 } from './types';
 import { AstrologyError } from './errors/AstrologyError';
 import { validateConfig } from './utils/validators';
-import { AxiosHttpHelper, type HttpHelper } from './utils/http';
+import { FetchHttpHelper, type HttpHelper } from './utils/http';
+import { FetchHttpClient, FetchError, type InternalRequest } from './utils/fetchClient';
 import { DataClient } from './categories/DataClient';
 import { ChartsClient } from './categories/ChartsClient';
 import { HoroscopeClient } from './categories/HoroscopeClient';
@@ -33,10 +26,6 @@ import { InsightsClient } from './categories/InsightsClient';
 import { SvgClient } from './categories/SvgClient';
 import { EnhancedClient } from './categories/EnhancedClient';
 
-interface RetryableRequestConfig extends AxiosRequestConfig {
-  __retryCount?: number;
-}
-
 interface NormalizedRetryConfig {
   attempts: number;
   delayMs: number;
@@ -49,10 +38,11 @@ const NETWORK_ERROR_CODES = new Set([
   'ECONNRESET',
   'ETIMEDOUT',
   'EPIPE',
+  'ENETWORK',
 ]);
 
 export class AstrologyClient {
-  private readonly axiosInstance: AxiosInstance;
+  private readonly fetchClient: FetchHttpClient;
   private readonly retryConfig: NormalizedRetryConfig;
   private readonly apiKey?: string;
   private readonly debugEnabled: boolean;
@@ -108,20 +98,19 @@ export class AstrologyClient {
       this.log('Debug logging enabled');
     }
 
-    this.axiosInstance = axios.create({
+    this.fetchClient = new FetchHttpClient({
       baseURL,
       timeout,
-      ...config.axiosOptions,
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
-        ...(config.axiosOptions?.headers ?? {}),
+        ...(config.requestOptions?.headers ?? {}),
       },
     });
 
     this.setupInterceptors();
 
-    this.httpHelper = new AxiosHttpHelper(this.axiosInstance, this.normalizePayload);
+    this.httpHelper = new FetchHttpHelper(this.fetchClient, this.normalizePayload);
 
     this.data = new DataClient(this.httpHelper);
     this.charts = new ChartsClient(this.httpHelper);
@@ -142,93 +131,81 @@ export class AstrologyClient {
   }
 
   private setupInterceptors(): void {
-    this.axiosInstance.interceptors.request.use((request) => {
-      if (!request.headers || typeof request.headers !== 'object') {
-        request.headers = {} as AxiosRequestHeaders;
-      }
-      const headers = request.headers as AxiosRequestHeaders & {
-        has?: (name: string) => boolean;
-        set?: (name: string, value: string) => void;
-      };
-
-      // Set Authorization header with Bearer token
-      if (this.apiKey) {
-        this.setHeaderIfMissing(headers, 'Authorization', `Bearer ${this.apiKey}`);
+    this.fetchClient.setRequestInterceptor((request) => {
+      if (this.apiKey && !request.headers['Authorization']) {
+        request.headers['Authorization'] = `Bearer ${this.apiKey}`;
       }
 
       this.log('Outgoing request', {
         method: request.method,
         url: request.url,
-        baseURL: request.baseURL,
-        params: request.params,
       });
+
       return request;
     });
 
-    this.axiosInstance.interceptors.response.use(
-      (response) => {
+    this.fetchClient.setResponseInterceptor(
+      async (response, request) => {
         this.log('Response received', {
-          url: response.config?.url,
+          url: request.url,
           status: response.status,
         });
-        return response;
+        if (request.responseType === 'text') {
+          return response.text();
+        }
+        return response.json();
       },
-      async (error) => {
-        if (isAxiosError(error) && this.shouldRetry(error)) {
+      async (error, request) => {
+        if (this.shouldRetry(error, request)) {
           this.log('Retry condition met', {
-            url: error.config?.url,
-            status: error.response?.status,
+            url: request.url,
+            status: error.status,
             code: error.code,
           });
-          return this.retryRequest(error);
+          return this.retryRequest(request);
         }
+
         this.log('Request failed', {
-          url: error.config?.url,
-          status: isAxiosError(error) ? error.response?.status : undefined,
-          code: isAxiosError(error) ? error.code : undefined,
+          url: request.url,
+          status: error.status,
+          code: error.code,
           message: error.message,
         });
+
         throw AstrologyError.normalize(error);
       },
     );
   }
 
-  private shouldRetry(error: AxiosError): boolean {
+  private shouldRetry(error: FetchError, request: InternalRequest): boolean {
     if (this.retryConfig.attempts <= 0) {
       return false;
     }
 
-    const requestConfig = error.config as RetryableRequestConfig | undefined;
-    if (!requestConfig) {
-      return false;
-    }
-
-    const attempt = requestConfig.__retryCount ?? 0;
+    const attempt = request.__retryCount ?? 0;
     if (attempt >= this.retryConfig.attempts) {
       return false;
     }
 
     // Retry on network errors
-    if (!error.response) {
+    /* istanbul ignore next -- @preserve legacy 'Network Error' fallback */
+    if (!error.status) {
       return NETWORK_ERROR_CODES.has(error.code ?? '') || error.message.includes('Network Error');
     }
 
-    return this.retryConfig.retryStatusCodes.includes(error.response.status);
+    return this.retryConfig.retryStatusCodes.includes(error.status);
   }
 
-  private async retryRequest(error: AxiosError): Promise<AxiosResponse> {
-    const requestConfig = error.config as RetryableRequestConfig;
-    requestConfig.__retryCount = (requestConfig.__retryCount ?? 0) + 1;
+  private async retryRequest(request: InternalRequest): Promise<unknown> {
+    request.__retryCount = (request.__retryCount ?? 0) + 1;
 
     this.log('Retrying request', {
-      url: requestConfig.url,
-      attempt: requestConfig.__retryCount,
-      status: error.response?.status,
-      code: error.code,
+      url: request.url,
+      attempt: request.__retryCount,
     });
 
     await this.delay(this.retryConfig.delayMs);
-    return this.axiosInstance.request(requestConfig);
+    return this.fetchClient.executeRequest(request);
   }
 
   private async delay(ms: number): Promise<void> {
@@ -237,28 +214,6 @@ export class AstrologyClient {
     }
 
     await new Promise((resolve) => setTimeout(resolve, ms));
-  }
-
-  private setHeaderIfMissing(
-    headers: AxiosRequestHeaders & {
-      has?: (name: string) => boolean;
-      set?: (name: string, value: string) => void;
-    },
-    name: string,
-    value: string,
-  ): void {
-    const hasHeader =
-      typeof headers.has === 'function'
-        ? headers.has(name)
-        : Object.prototype.hasOwnProperty.call(headers, name);
-
-    if (!hasHeader) {
-      if (typeof headers.set === 'function') {
-        headers.set(name, value);
-      } else {
-        headers[name] = value;
-      }
-    }
   }
 
   private resolveApiKey(apiKey?: string): string | undefined {
@@ -326,7 +281,7 @@ export class AstrologyClient {
     }
   }
 
-  get httpClient(): AxiosInstance {
-    return this.axiosInstance;
+  get httpClient(): FetchHttpClient {
+    return this.fetchClient;
   }
 }

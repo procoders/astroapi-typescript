@@ -1,23 +1,18 @@
-import { AxiosError, AxiosRequestConfig, InternalAxiosRequestConfig } from 'axios';
 import { describe, it, expect } from 'vitest';
 import { AstrologyError } from '../../src/errors/AstrologyError';
+import { FetchError } from '../../src/utils/fetchClient';
 
-const buildAxiosError = (status: number, message: string, data: Record<string, unknown> = { message }): AxiosError => {
-  const config: AxiosRequestConfig = { url: '/test', method: 'get' };
-  const internalConfig = config as InternalAxiosRequestConfig;
-  return new AxiosError(
-    message,
-    'ERR_BAD_RESPONSE',
-    internalConfig,
-    undefined,
-    {
-      status,
-      statusText: message,
-      headers: {},
-      config: internalConfig,
-      data,
-    },
-  );
+const buildFetchError = (
+  status: number,
+  message: string,
+  body: Record<string, unknown> = { message },
+): FetchError => {
+  return new FetchError(message, {
+    status,
+    statusText: message,
+    code: 'ERR_BAD_RESPONSE',
+    body,
+  });
 };
 
 describe('AstrologyError', () => {
@@ -32,37 +27,37 @@ describe('AstrologyError', () => {
     expect(error.isServerError()).toBe(false);
   });
 
-  it('normalizes axios errors', () => {
-    const axiosError = buildAxiosError(422, 'Invalid data');
-    const astrologyError = AstrologyError.fromAxiosError(axiosError);
+  it('normalizes fetch errors', () => {
+    const fetchError = buildFetchError(422, 'Invalid data');
+    const astrologyError = AstrologyError.fromFetchError(fetchError);
 
     expect(astrologyError.statusCode).toBe(422);
     expect(astrologyError.code).toBe('ERR_BAD_RESPONSE');
     expect(astrologyError.details).toMatchObject({ message: 'Invalid data' });
   });
 
-  it('falls back to axios error message when response message missing', () => {
-    const axiosError = buildAxiosError(400, 'Generic failure');
-    const response = AstrologyError.fromAxiosError(axiosError);
+  it('falls back to fetch error message when response message missing', () => {
+    const fetchError = buildFetchError(400, 'Generic failure');
+    const response = AstrologyError.fromFetchError(fetchError);
     expect(response.message).toBe('Generic failure');
   });
 
   it('defaults to generic message when no context available', () => {
-    const axiosError = buildAxiosError(500, '', {});
-    (axiosError as any).message = undefined;
-    const response = AstrologyError.fromAxiosError(axiosError);
+    const fetchError = buildFetchError(500, '', {});
+    (fetchError as any).message = undefined;
+    const response = AstrologyError.fromFetchError(fetchError);
     expect(response.message).toBe('Unknown error occurred while communicating with Astrology API');
   });
 
-  it('handles axios errors without response data', () => {
-    const axiosError = new AxiosError('Network fail', 'ERR_NETWORK');
-    const response = AstrologyError.fromAxiosError(axiosError);
+  it('handles fetch errors without response data', () => {
+    const fetchError = new FetchError('Network fail', { code: 'ERR_NETWORK' });
+    const response = AstrologyError.fromFetchError(fetchError);
     expect(response.statusCode).toBeUndefined();
     expect(response.message).toBe('Network fail');
-    expect(response.details).toBeDefined();
+    expect(response.details).toBeUndefined();
   });
 
-  it('normalizes non-axios errors', () => {
+  it('normalizes non-fetch errors', () => {
     const result = AstrologyError.normalize(new Error('Boom'));
     expect(result).toBeInstanceOf(AstrologyError);
     expect(result.message).toBe('Boom');
@@ -81,8 +76,7 @@ describe('AstrologyError', () => {
   });
 
   it('detects server errors', () => {
-    const serverError = AstrologyError.normalize(buildAxiosError(503, 'Unavailable'));
+    const serverError = AstrologyError.normalize(buildFetchError(503, 'Unavailable'));
     expect(serverError.isServerError()).toBe(true);
   });
 });
-

@@ -1,15 +1,21 @@
-import axios from 'axios';
-import MockAdapter from 'axios-mock-adapter';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, afterEach } from 'vitest';
+import { FetchHttpClient } from '../../../src/utils/fetchClient';
+import { FetchHttpHelper } from '../../../src/utils/http';
+import { mockFetch } from '../../utils/mockFetch';
 
-import { AxiosHttpHelper } from '../../../src/utils/http';
+describe('FetchHttpHelper', () => {
+  afterEach(() => {
+    mockFetch.reset();
+  });
 
-describe('AxiosHttpHelper', () => {
   it('wraps put and delete requests and normalizes responses', async () => {
-    const axiosInstance = axios.create();
-    const mock = new MockAdapter(axiosInstance);
-    const helper = new AxiosHttpHelper(
-      axiosInstance,
+    const client = new FetchHttpClient({
+      baseURL: 'https://api.test.com',
+      timeout: 5000,
+    });
+
+    const helper = new FetchHttpHelper(
+      client,
       <T>(payload: unknown): T => {
         if (payload && typeof payload === 'object' && 'data' in (payload as Record<string, unknown>)) {
           return (payload as { data: T }).data;
@@ -18,14 +24,13 @@ describe('AxiosHttpHelper', () => {
       },
     );
 
-    mock.onPut('/resource/1').reply(200, { data: { updated: true } });
-    mock.onDelete('/resource/1').reply(200, { data: { deleted: true } });
+    mockFetch.onPut('/resource/1').reply(200, { data: { updated: true } });
+    mockFetch.onDelete('/resource/1').reply(200, { data: { deleted: true } });
 
     await expect(helper.put('/resource/1', { value: 1 })).resolves.toEqual({ updated: true });
     await expect(helper.delete('/resource/1')).resolves.toEqual({ deleted: true });
 
-    expect(mock.history.put).toHaveLength(1);
-    expect(mock.history.delete).toHaveLength(1);
+    expect(mockFetch.history.put).toHaveLength(1);
+    expect(mockFetch.history.delete).toHaveLength(1);
   });
 });
-

@@ -1,4 +1,4 @@
-import type { AxiosRequestConfig } from 'axios';
+import type { RequestConfig } from '../types/config';
 
 import type { GlobalAnalysisRequest, PersonalAnalysisRequest } from '../types/requests';
 import type { GlobalAnalysisResponse, PersonalAnalysisResponse } from '../types/responses';
@@ -17,7 +17,7 @@ export class EnhancedClient extends BaseCategoryClient {
 
   async getGlobalAnalysis(
     request: GlobalAnalysisRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<GlobalAnalysisResponse> {
     validateGlobalAnalysisRequest(request);
     return this.http.post<GlobalAnalysisRequest, GlobalAnalysisResponse>(
@@ -29,7 +29,7 @@ export class EnhancedClient extends BaseCategoryClient {
 
   async getPersonalAnalysis(
     request: PersonalAnalysisRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<PersonalAnalysisResponse> {
     validatePersonalAnalysisRequest(request);
     return this.http.post<PersonalAnalysisRequest, PersonalAnalysisResponse>(
@@ -41,7 +41,7 @@ export class EnhancedClient extends BaseCategoryClient {
 
   async getGlobalAnalysisChart(
     request: GlobalAnalysisRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<GlobalAnalysisResponse> {
     validateGlobalAnalysisRequest(request);
     return this.http.post<GlobalAnalysisRequest, GlobalAnalysisResponse>(
@@ -53,7 +53,7 @@ export class EnhancedClient extends BaseCategoryClient {
 
   async getPersonalAnalysisChart(
     request: PersonalAnalysisRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<PersonalAnalysisResponse> {
     validatePersonalAnalysisRequest(request);
     return this.http.post<PersonalAnalysisRequest, PersonalAnalysisResponse>(

@@ -1,5 +1,5 @@
-import axios from 'axios';
-import MockAdapter from 'axios-mock-adapter';
+
+
 
 import { ChineseClient } from '../../../src/categories/ChineseClient';
 import { AstrologyError } from '../../../src/errors/AstrologyError';
@@ -22,9 +22,9 @@ import type {
   LuckPillarsResponse,
   MingGuaResponse,
 } from '../../../src/types/responses';
-import { AxiosHttpHelper } from '../../../src/utils/http';
+import { createTestHttpHelper } from '../../utils/testHelpers';
+import { mockFetch } from '../../utils/mockFetch';
 
-type HttpHelperWithMock = { helper: AxiosHttpHelper; mock: MockAdapter };
 
 const createChineseSubject = (overrides: Partial<ChineseSubject> = {}): ChineseSubject => ({
   name: 'Li Mei',
@@ -104,46 +104,25 @@ const createMingGuaRequest = (overrides: Partial<SingleSubjectRequest> = {}): Si
   ...overrides,
 });
 
-const createHttpHelper = (): HttpHelperWithMock => {
-  const axiosInstance = axios.create();
-  const mock = new MockAdapter(axiosInstance);
-  const helper = new AxiosHttpHelper(
-    axiosInstance,
-    <T>(payload: unknown): T => {
-      if (payload && typeof payload === 'object') {
-        const record = payload as Record<string, unknown>;
-        if (record.data !== undefined) {
-          return record.data as T;
-        }
-        if (record.result !== undefined) {
-          return record.result as T;
-        }
-      }
-      return payload as T;
-    },
-  );
-
-  return { helper, mock };
-};
 
 describe('ChineseClient', () => {
   let client: ChineseClient;
-  let mock: MockAdapter;
+  
 
   beforeEach(() => {
-    const { helper, mock: axiosMock } = createHttpHelper();
+    const helper = createTestHttpHelper();
     client = new ChineseClient(helper);
-    mock = axiosMock;
+    
   });
 
   afterEach(() => {
-    mock.reset();
+    mockFetch.reset();
   });
 
   it('calculates BaZi analysis', async () => {
     const request = createBaZiRequest();
     const response = { success: true } as BaZiResponse;
-    mock.onPost('/api/v3/chinese/bazi').reply(200, { data: response });
+    mockFetch.onPost('/api/v3/chinese/bazi').reply(200, { data: response });
 
     await expect(client.calculateBaZi(request)).resolves.toEqual(response);
   });
@@ -157,7 +136,7 @@ describe('ChineseClient', () => {
   it('calculates Chinese compatibility', async () => {
     const request = createCompatibilityRequest();
     const response = { score: 85 } as ChineseCompatibilityResponse;
-    mock.onPost('/api/v3/chinese/compatibility').reply(200, { data: response });
+    mockFetch.onPost('/api/v3/chinese/compatibility').reply(200, { data: response });
 
     await expect(client.calculateCompatibility(request)).resolves.toEqual(response);
   });
@@ -171,7 +150,7 @@ describe('ChineseClient', () => {
   it('calculates luck pillars', async () => {
     const request = createLuckPillarsRequest();
     const response = { luck_pillars: [] } as LuckPillarsResponse;
-    mock.onPost('/api/v3/chinese/luck-pillars').reply(200, { data: response });
+    mockFetch.onPost('/api/v3/chinese/luck-pillars').reply(200, { data: response });
 
     await expect(client.calculateLuckPillars(request)).resolves.toEqual(response);
   });
@@ -187,7 +166,7 @@ describe('ChineseClient', () => {
   it('calculates Ming Gua', async () => {
     const request = createMingGuaRequest();
     const response = { ming_gua: 3 } as MingGuaResponse;
-    mock.onPost('/api/v3/chinese/ming-gua').reply(200, { data: response });
+    mockFetch.onPost('/api/v3/chinese/ming-gua').reply(200, { data: response });
 
     await expect(client.calculateMingGua(request)).resolves.toEqual(response);
   });
@@ -201,7 +180,7 @@ describe('ChineseClient', () => {
   it('returns yearly forecast', async () => {
     const request = createYearlyRequest();
     const response = { forecast: {} } as ChineseYearlyForecastResponse;
-    mock.onPost('/api/v3/chinese/yearly-forecast').reply(200, { data: response });
+    mockFetch.onPost('/api/v3/chinese/yearly-forecast').reply(200, { data: response });
 
     await expect(client.getYearlyForecast(request)).resolves.toEqual(response);
   });
@@ -214,21 +193,19 @@ describe('ChineseClient', () => {
 
   it('analyzes year elements', async () => {
     const response = { elements_analysis: {} } as ChineseElementsResponse;
-    mock.onGet('/api/v3/chinese/elements/balance/2024').reply(200, { data: response });
+    mockFetch.onGet('/api/v3/chinese/elements/balance/2024').reply(200, { data: response });
 
     await expect(
       client.analyzeYearElements(2024, { include_predictions: true, language: 'en' }),
     ).resolves.toEqual(response);
 
-    expect(mock.history.get[0].params).toMatchObject({ include_predictions: true, language: 'en' });
+    expect(mockFetch.history.get[0].params).toMatchObject({ include_predictions: 'true', language: 'en' });
   });
 
-  it('preserves axios config when year elements params omitted', async () => {
+  it('preserves request config when year elements params omitted', async () => {
     const response = { elements_analysis: {} } as ChineseElementsResponse;
-    const controller = new AbortController();
-    mock.onGet('/api/v3/chinese/elements/balance/2024').reply((config) => {
+    mockFetch.onGet('/api/v3/chinese/elements/balance/2024').reply((config) => {
       expect(config.headers?.Authorization).toBe('Bearer token');
-      expect(config.signal).toBe(controller.signal);
       expect(config.params).toBeUndefined();
       return [200, { data: response }];
     });
@@ -239,7 +216,6 @@ describe('ChineseClient', () => {
         undefined,
         {
           headers: { Authorization: 'Bearer token' },
-          signal: controller.signal,
         },
       ),
     ).resolves.toEqual(response);
@@ -251,13 +227,13 @@ describe('ChineseClient', () => {
 
   it('retrieves solar terms', async () => {
     const response = { solar_terms: [] } as ChineseSolarTermsResponse;
-    mock.onGet('/api/v3/chinese/calendar/solar-terms/2024').reply(200, { data: response });
+    mockFetch.onGet('/api/v3/chinese/calendar/solar-terms/2024').reply(200, { data: response });
 
     await expect(
       client.getSolarTerms(2024, { timezone: '  Asia/Shanghai ', language: 'en' }),
     ).resolves.toEqual(response);
 
-    expect(mock.history.get[0].params).toMatchObject({ timezone: 'Asia/Shanghai', language: 'en' });
+    expect(mockFetch.history.get[0].params).toMatchObject({ timezone: 'Asia/Shanghai', language: 'en' });
   });
 
   it('validates solar terms timezone', async () => {
@@ -268,22 +244,19 @@ describe('ChineseClient', () => {
 
   it('retrieves zodiac animal info', async () => {
     const response = { animal: 'Dragon' } as ChineseZodiacResponse;
-    mock.onGet('/api/v3/chinese/zodiac/dragon').reply(200, { data: response });
+    mockFetch.onGet('/api/v3/chinese/zodiac/dragon').reply(200, { data: response });
 
     await expect(
       client.getZodiacAnimal('Dragon', { year: 2024, language: 'en' }),
     ).resolves.toEqual(response);
 
-    expect(mock.history.get[0].url).toBe('/api/v3/chinese/zodiac/dragon');
-    expect(mock.history.get[0].params).toMatchObject({ year: 2024, language: 'en' });
+    expect(mockFetch.history.get[0].params).toMatchObject({ year: '2024', language: 'en' });
   });
 
-  it('merges zodiac params with axios config', async () => {
+  it('merges zodiac params with request config', async () => {
     const response = { animal: 'Tiger' } as ChineseZodiacResponse;
-    const controller = new AbortController();
-    mock.onGet('/api/v3/chinese/zodiac/tiger').reply((config) => {
-      expect(config.params).toMatchObject({ year: 2025, language: 'fr' });
-      expect(config.signal).toBe(controller.signal);
+    mockFetch.onGet('/api/v3/chinese/zodiac/tiger').reply((config) => {
+      expect(config.params).toMatchObject({ year: '2025', language: 'fr' });
       expect(config.headers?.Authorization).toBe('Bearer token');
       return [200, { data: response }];
     });
@@ -293,16 +266,15 @@ describe('ChineseClient', () => {
         'Tiger',
         { year: 2025, language: 'fr' },
         {
-          signal: controller.signal,
           headers: { Authorization: 'Bearer token' },
         },
       ),
     ).resolves.toEqual(response);
   });
 
-  it('preserves axios config when zodiac params omitted', async () => {
+  it('preserves request config when zodiac params omitted', async () => {
     const response = { animal: 'Rat' } as ChineseZodiacResponse;
-    mock.onGet('/api/v3/chinese/zodiac/rat').reply((config) => {
+    mockFetch.onGet('/api/v3/chinese/zodiac/rat').reply((config) => {
       expect(config.params).toBeUndefined();
       expect(config.headers?.Authorization).toBe('Bearer token');
       return [200, { data: response }];

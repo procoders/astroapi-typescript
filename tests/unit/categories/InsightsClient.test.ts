@@ -1,5 +1,5 @@
-import axios from 'axios';
-import MockAdapter from 'axios-mock-adapter';
+
+
 
 import { InsightsClient } from '../../../src/categories/InsightsClient';
 import { AstrologyError } from '../../../src/errors/AstrologyError';
@@ -35,9 +35,9 @@ import type {
   PetPersonalityResponse,
   PetTrainingWindowsResponse,
 } from '../../../src/types/responses';
-import { AxiosHttpHelper } from '../../../src/utils/http';
+import { createTestHttpHelper } from '../../utils/testHelpers';
+import { mockFetch } from '../../utils/mockFetch';
 
-type HttpHelperWithMock = { helper: AxiosHttpHelper; mock: MockAdapter };
 
 const createSubject = (overrides: Partial<Subject> = {}): Subject => ({
   name: 'Sample Subject',
@@ -203,45 +203,24 @@ const createBusinessTimingRequest = (
   ...overrides,
 });
 
-const createHttpHelper = (): HttpHelperWithMock => {
-  const axiosInstance = axios.create();
-  const mock = new MockAdapter(axiosInstance);
-  const helper = new AxiosHttpHelper(
-    axiosInstance,
-    <T>(payload: unknown): T => {
-      if (payload && typeof payload === 'object') {
-        const record = payload as Record<string, unknown>;
-        if (record.data !== undefined) {
-          return record.data as T;
-        }
-        if (record.result !== undefined) {
-          return record.result as T;
-        }
-      }
-      return payload as T;
-    },
-  );
-
-  return { helper, mock };
-};
 
 describe('InsightsClient', () => {
   let client: InsightsClient;
-  let mock: MockAdapter;
+  
 
   beforeEach(() => {
-    const { helper, mock: axiosMock } = createHttpHelper();
+    const helper = createTestHttpHelper();
     client = new InsightsClient(helper);
-    mock = axiosMock;
+    
   });
 
   afterEach(() => {
-    mock.reset();
+    mockFetch.reset();
   });
 
   it('discovers available insights', async () => {
     const response = { categories: ['relationship', 'pet'] } as InsightsResponse;
-    mock.onGet('/api/v3/insights').reply(200, { data: response });
+    mockFetch.onGet('/api/v3/insights').reply(200, { data: response });
 
     await expect(client.discover()).resolves.toEqual(response);
   });
@@ -250,7 +229,7 @@ describe('InsightsClient', () => {
     it('analyzes relationship compatibility', async () => {
       const request = createCompatibilityRequest();
       const response = { score: 0.82 } as InsightsResponse;
-      mock.onPost('/api/v3/insights/relationship/compatibility').reply(200, { data: response });
+      mockFetch.onPost('/api/v3/insights/relationship/compatibility').reply(200, { data: response });
 
       await expect(client.relationship.getCompatibility(request)).resolves.toEqual(response);
     });
@@ -264,7 +243,7 @@ describe('InsightsClient', () => {
     it('returns compatibility score', async () => {
       const request = createMultipleSubjectsRequest();
       const response = { score: 78 } as InsightsResponse;
-      mock.onPost('/api/v3/insights/relationship/compatibility-score').reply(200, { data: response });
+      mockFetch.onPost('/api/v3/insights/relationship/compatibility-score').reply(200, { data: response });
 
       await expect(client.relationship.getCompatibilityScore(request)).resolves.toEqual(response);
     });
@@ -278,7 +257,7 @@ describe('InsightsClient', () => {
     it('retrieves love languages', async () => {
       const request = createSingleSubjectRequest();
       const response = { primary: 'words_of_affirmation' } as InsightsResponse;
-      mock.onPost('/api/v3/insights/relationship/love-languages').reply(200, { data: response });
+      mockFetch.onPost('/api/v3/insights/relationship/love-languages').reply(200, { data: response });
 
       await expect(client.relationship.getLoveLanguages(request)).resolves.toEqual(response);
     });
@@ -291,21 +270,21 @@ describe('InsightsClient', () => {
 
     it('generates Davison report for two subjects', async () => {
       const response = { report: {} } as InsightsResponse;
-      mock.onPost('/api/v3/insights/relationship/davison').reply(200, { data: response });
+      mockFetch.onPost('/api/v3/insights/relationship/davison').reply(200, { data: response });
 
       await expect(client.relationship.getDavisonReport(createMultipleSubjectsRequest())).resolves.toEqual(response);
     });
 
     it('retrieves relationship timing insights', async () => {
       const response = { periods: [] } as InsightsResponse;
-      mock.onPost('/api/v3/insights/relationship/timing').reply(200, { data: response });
+      mockFetch.onPost('/api/v3/insights/relationship/timing').reply(200, { data: response });
 
       await expect(client.relationship.getTiming(createCompatibilityRequest())).resolves.toEqual(response);
     });
 
     it('retrieves relationship red flags', async () => {
       const response = { warnings: [] } as InsightsResponse;
-      mock.onPost('/api/v3/insights/relationship/red-flags').reply(200, { data: response });
+      mockFetch.onPost('/api/v3/insights/relationship/red-flags').reply(200, { data: response });
 
       await expect(client.relationship.getRedFlags(createSingleSubjectRequest())).resolves.toEqual(response);
     });
@@ -314,14 +293,14 @@ describe('InsightsClient', () => {
   describe('pet insights', () => {
     it('retrieves pet personality', async () => {
       const response = { traits: [] } as PetPersonalityResponse;
-      mock.onPost('/api/v3/insights/pet/personality').reply(200, { data: response });
+      mockFetch.onPost('/api/v3/insights/pet/personality').reply(200, { data: response });
 
       await expect(client.pet.getPersonality(createPetSingleSubjectRequest())).resolves.toEqual(response);
     });
 
     it('retrieves pet compatibility', async () => {
       const response = { score: 85 } as PetCompatibilityResponse;
-      mock.onPost('/api/v3/insights/pet/compatibility').reply(200, { data: response });
+      mockFetch.onPost('/api/v3/insights/pet/compatibility').reply(200, { data: response });
 
       await expect(client.pet.getCompatibility(createPetCompatibilityRequest())).resolves.toEqual(response);
     });
@@ -334,7 +313,7 @@ describe('InsightsClient', () => {
 
     it('retrieves pet training windows', async () => {
       const response = { optimal_windows: [] } as PetTrainingWindowsResponse;
-      mock.onPost('/api/v3/insights/pet/training-windows').reply(200, { data: response });
+      mockFetch.onPost('/api/v3/insights/pet/training-windows').reply(200, { data: response });
 
       await expect(client.pet.getTrainingWindows(createPetSingleSubjectRequest())).resolves.toEqual(response);
     });
@@ -347,14 +326,14 @@ describe('InsightsClient', () => {
 
     it('retrieves pet health sensitivities', async () => {
       const response = { recommendations: [] } as PetHealthSensitivitiesResponse;
-      mock.onPost('/api/v3/insights/pet/health-sensitivities').reply(200, { data: response });
+      mockFetch.onPost('/api/v3/insights/pet/health-sensitivities').reply(200, { data: response });
 
       await expect(client.pet.getHealthSensitivities(createPetSingleSubjectRequest())).resolves.toEqual(response);
     });
 
     it('retrieves multi-pet dynamics', async () => {
       const response = { success: true, data: {} } as MultiPetDynamicsResponse;
-      mock.onPost('/api/v3/insights/pet/multi-pet-dynamics').reply(200, { data: response });
+      mockFetch.onPost('/api/v3/insights/pet/multi-pet-dynamics').reply(200, { data: response });
 
       await expect(client.pet.getMultiPetDynamics(createPetMultiSubjectRequest())).resolves.toEqual(response);
     });
@@ -390,7 +369,7 @@ describe('InsightsClient', () => {
 
     it.each(endpoints)('calls %s', async ({ path, action }) => {
       const response = { result: 'ok' } as InsightsResponse;
-      mock.onPost(path).reply(200, { data: response });
+      mockFetch.onPost(path).reply(200, { data: response });
 
       await expect(action(createSingleSubjectRequest())).resolves.toEqual(response);
     });
@@ -399,7 +378,7 @@ describe('InsightsClient', () => {
   describe('financial insights', () => {
     it('retrieves market timing', async () => {
       const response = { markets: [] } as MarketTimingResponse;
-      mock.onPost('/api/v3/insights/financial/market-timing').reply(200, { data: response });
+      mockFetch.onPost('/api/v3/insights/financial/market-timing').reply(200, { data: response });
 
       await expect(client.financial.getMarketTiming(createMarketTimingRequest())).resolves.toEqual(response);
     });
@@ -412,7 +391,7 @@ describe('InsightsClient', () => {
 
     it('analyzes personal trading windows', async () => {
       const response = { optimal_trading_days: [] } as PersonalTradingResponse;
-      mock.onPost('/api/v3/insights/financial/personal-trading').reply(200, { data: response });
+      mockFetch.onPost('/api/v3/insights/financial/personal-trading').reply(200, { data: response });
 
       await expect(client.financial.analyzePersonalTrading(createPersonalTradingRequest())).resolves.toEqual(response);
     });
@@ -425,7 +404,7 @@ describe('InsightsClient', () => {
 
     it('retrieves Gann analysis', async () => {
       const response = { cycles: [] } as GannAnalysisResponse;
-      mock.onPost('/api/v3/insights/financial/gann-analysis').reply(200, { data: response });
+      mockFetch.onPost('/api/v3/insights/financial/gann-analysis').reply(200, { data: response });
 
       await expect(client.financial.getGannAnalysis(createGannAnalysisRequest())).resolves.toEqual(response);
     });
@@ -438,7 +417,7 @@ describe('InsightsClient', () => {
 
     it('retrieves Bradley siderograph analysis', async () => {
       const response = { turning_points: [] } as InsightsResponse;
-      mock.onPost('/api/v3/insights/financial/bradley-siderograph').reply(200, { data: response });
+      mockFetch.onPost('/api/v3/insights/financial/bradley-siderograph').reply(200, { data: response });
 
       await expect(client.financial.getBradleySiderograph(createBradleyRequest())).resolves.toEqual(response);
     });
@@ -451,7 +430,7 @@ describe('InsightsClient', () => {
 
     it('retrieves crypto timing analysis', async () => {
       const response = { signals: [] } as CryptoTimingResponse;
-      mock.onPost('/api/v3/insights/financial/crypto-timing').reply(200, { data: response });
+      mockFetch.onPost('/api/v3/insights/financial/crypto-timing').reply(200, { data: response });
 
       await expect(client.financial.getCryptoTiming(createCryptoTimingRequest())).resolves.toEqual(response);
     });
@@ -464,7 +443,7 @@ describe('InsightsClient', () => {
 
     it('retrieves forex timing analysis', async () => {
       const response = { sessions: [] } as ForexTimingResponse;
-      mock.onPost('/api/v3/insights/financial/forex-timing').reply(200, { data: response });
+      mockFetch.onPost('/api/v3/insights/financial/forex-timing').reply(200, { data: response });
 
       await expect(client.financial.getForexTiming(createForexTimingRequest())).resolves.toEqual(response);
     });
@@ -479,7 +458,7 @@ describe('InsightsClient', () => {
   describe('business insights', () => {
     it('retrieves team dynamics analysis', async () => {
       const response = { team: {} } as BusinessInsightsResponse;
-      mock.onPost('/api/v3/insights/business/team-dynamics').reply(200, { data: response });
+      mockFetch.onPost('/api/v3/insights/business/team-dynamics').reply(200, { data: response });
 
       await expect(client.business.getTeamDynamics(createBusinessMultipleRequest())).resolves.toEqual(response);
     });
@@ -492,21 +471,21 @@ describe('InsightsClient', () => {
 
     it('retrieves leadership style insights', async () => {
       const response = { style: 'visionary' } as BusinessInsightsResponse;
-      mock.onPost('/api/v3/insights/business/leadership-style').reply(200, { data: response });
+      mockFetch.onPost('/api/v3/insights/business/leadership-style').reply(200, { data: response });
 
       await expect(client.business.getLeadershipStyle(createBusinessSingleRequest())).resolves.toEqual(response);
     });
 
     it('retrieves hiring compatibility insights', async () => {
       const response = { result: 'match' } as BusinessInsightsResponse;
-      mock.onPost('/api/v3/insights/business/hiring-compatibility').reply(200, { data: response });
+      mockFetch.onPost('/api/v3/insights/business/hiring-compatibility').reply(200, { data: response });
 
       await expect(client.business.getHiringCompatibility(createBusinessMultipleRequest())).resolves.toEqual(response);
     });
 
     it('retrieves business timing insights', async () => {
       const response = { windows: [] } as BusinessInsightsResponse;
-      mock.onPost('/api/v3/insights/business/business-timing').reply(200, { data: response });
+      mockFetch.onPost('/api/v3/insights/business/business-timing').reply(200, { data: response });
 
       await expect(client.business.getBusinessTiming(createBusinessTimingRequest())).resolves.toEqual(response);
     });
@@ -519,14 +498,14 @@ describe('InsightsClient', () => {
 
     it('retrieves department compatibility', async () => {
       const response = { compatibility: [] } as BusinessInsightsResponse;
-      mock.onPost('/api/v3/insights/business/department-compatibility').reply(200, { data: response });
+      mockFetch.onPost('/api/v3/insights/business/department-compatibility').reply(200, { data: response });
 
       await expect(client.business.getDepartmentCompatibility(createBusinessMultipleRequest())).resolves.toEqual(response);
     });
 
     it('retrieves succession planning insights', async () => {
       const response = { recommendations: [] } as BusinessInsightsResponse;
-      mock.onPost('/api/v3/insights/business/succession-planning').reply(200, { data: response });
+      mockFetch.onPost('/api/v3/insights/business/succession-planning').reply(200, { data: response });
 
       await expect(client.business.getSuccessionPlanning(createBusinessMultipleRequest())).resolves.toEqual(response);
     });

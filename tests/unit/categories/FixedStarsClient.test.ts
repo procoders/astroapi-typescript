@@ -1,5 +1,5 @@
-import axios from 'axios';
-import MockAdapter from 'axios-mock-adapter';
+
+
 
 import { FixedStarsClient } from '../../../src/categories/FixedStarsClient';
 import { AstrologyError } from '../../../src/errors/AstrologyError';
@@ -17,9 +17,9 @@ import type {
   FixedStarsPresetsResponse,
   FixedStarsReportResponse,
 } from '../../../src/types/responses';
-import { AxiosHttpHelper } from '../../../src/utils/http';
+import { createTestHttpHelper } from '../../utils/testHelpers';
+import { mockFetch } from '../../utils/mockFetch';
 
-type HttpHelperWithMock = { helper: AxiosHttpHelper; mock: MockAdapter };
 
 const createSubject = (overrides: Partial<Subject> = {}): Subject => ({
   name: 'Fixed Star Subject',
@@ -71,46 +71,25 @@ const createReportRequest = (
   ...overrides,
 });
 
-const createHttpHelper = (): HttpHelperWithMock => {
-  const axiosInstance = axios.create();
-  const mock = new MockAdapter(axiosInstance);
-  const helper = new AxiosHttpHelper(
-    axiosInstance,
-    <T>(payload: unknown): T => {
-      if (payload && typeof payload === 'object') {
-        const record = payload as Record<string, unknown>;
-        if (record.data !== undefined) {
-          return record.data as T;
-        }
-        if (record.result !== undefined) {
-          return record.result as T;
-        }
-      }
-      return payload as T;
-    },
-  );
-
-  return { helper, mock };
-};
 
 describe('FixedStarsClient', () => {
   let client: FixedStarsClient;
-  let mock: MockAdapter;
+  
 
   beforeEach(() => {
-    const { helper, mock: axiosMock } = createHttpHelper();
+    const helper = createTestHttpHelper();
     client = new FixedStarsClient(helper);
-    mock = axiosMock;
+    
   });
 
   afterEach(() => {
-    mock.reset();
+    mockFetch.reset();
   });
 
   it('retrieves fixed star positions', async () => {
     const request = createPositionsRequest();
     const response = { positions: [] } as FixedStarsPositionsResponse;
-    mock.onPost('/api/v3/fixed-stars/positions').reply(200, { data: response });
+    mockFetch.onPost('/api/v3/fixed-stars/positions').reply(200, { data: response });
 
     await expect(client.getPositions(request)).resolves.toEqual(response);
   });
@@ -134,7 +113,7 @@ describe('FixedStarsClient', () => {
   it('retrieves fixed star conjunctions', async () => {
     const request = createConjunctionsRequest();
     const response = { conjunctions: [] } as FixedStarsConjunctionsResponse;
-    mock.onPost('/api/v3/fixed-stars/conjunctions').reply(200, { data: response });
+    mockFetch.onPost('/api/v3/fixed-stars/conjunctions').reply(200, { data: response });
 
     await expect(client.getConjunctions(request)).resolves.toEqual(response);
   });
@@ -148,14 +127,14 @@ describe('FixedStarsClient', () => {
   it('generates fixed star report', async () => {
     const request = createReportRequest();
     const response = { summary: {} } as FixedStarsReportResponse;
-    mock.onPost('/api/v3/fixed-stars/report').reply(200, { data: response });
+    mockFetch.onPost('/api/v3/fixed-stars/report').reply(200, { data: response });
 
     await expect(client.generateReport(request)).resolves.toEqual(response);
   });
 
   it('retrieves fixed star presets info', async () => {
     const response = { presets: [] } as FixedStarsPresetsResponse;
-    mock.onGet('/api/v3/fixed-stars/presets').reply(200, { data: response });
+    mockFetch.onGet('/api/v3/fixed-stars/presets').reply(200, { data: response });
 
     await expect(client.getPresets()).resolves.toEqual(response);
   });

@@ -1,4 +1,4 @@
-import type { AxiosRequestConfig } from 'axios';
+import type { RequestConfig } from '../types/config';
 
 import { MultipleSubjectsRequest, SingleSubjectRequest } from '../types/requests';
 import {
@@ -23,7 +23,7 @@ export class NumerologyClient extends BaseCategoryClient {
 
   async getCoreNumbers(
     request: SingleSubjectRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<NumerologyCoreResponse> {
     validateNumerologyCoreRequest(request);
     return this.http.post<SingleSubjectRequest, NumerologyCoreResponse>(
@@ -35,7 +35,7 @@ export class NumerologyClient extends BaseCategoryClient {
 
   async getComprehensiveReport(
     request: SingleSubjectRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<NumerologyComprehensiveResponse> {
     validateNumerologyComprehensiveRequest(request);
     return this.http.post<SingleSubjectRequest, NumerologyComprehensiveResponse>(
@@ -47,7 +47,7 @@ export class NumerologyClient extends BaseCategoryClient {
 
   async analyzeCompatibility(
     request: MultipleSubjectsRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<NumerologyCompatibilityResponse> {
     validateNumerologyCompatibilityRequest(request);
     return this.http.post<MultipleSubjectsRequest, NumerologyCompatibilityResponse>(

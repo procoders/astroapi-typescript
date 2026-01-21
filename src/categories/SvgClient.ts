@@ -1,4 +1,4 @@
-import type { AxiosRequestConfig } from 'axios';
+import type { RequestConfig } from '../types/config';
 
 import type {
   CompositeChartSVGRequest,
@@ -23,7 +23,7 @@ export class SvgClient extends BaseCategoryClient {
     super(http, SvgClient.API_PREFIX);
   }
 
-  private ensureSvgResponseConfig(config?: AxiosRequestConfig): AxiosRequestConfig {
+  private ensureSvgResponseConfig(config?: RequestConfig): RequestConfig {
     if (!config) {
       return { responseType: 'text' };
     }
@@ -37,7 +37,7 @@ export class SvgClient extends BaseCategoryClient {
 
   async getNatalChartSvg(
     request: NatalChartSVGRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<SvgString> {
     validateNatalChartSvgRequest(request);
     const requestConfig = this.ensureSvgResponseConfig(config);
@@ -50,7 +50,7 @@ export class SvgClient extends BaseCategoryClient {
 
   async getSynastryChartSvg(
     request: SynastryChartSVGRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<SvgString> {
     validateSynastryChartSvgRequest(request);
     const requestConfig = this.ensureSvgResponseConfig(config);
@@ -63,7 +63,7 @@ export class SvgClient extends BaseCategoryClient {
 
   async getCompositeChartSvg(
     request: CompositeChartSVGRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<SvgString> {
     validateCompositeChartSvgRequest(request);
     const requestConfig = this.ensureSvgResponseConfig(config);
@@ -76,7 +76,7 @@ export class SvgClient extends BaseCategoryClient {
 
   async getTransitChartSvg(
     request: TransitChartSVGRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<SvgString> {
     validateTransitChartSvgRequest(request);
     const requestConfig = this.ensureSvgResponseConfig(config);

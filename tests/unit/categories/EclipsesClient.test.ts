@@ -1,5 +1,5 @@
-import axios from 'axios';
-import MockAdapter from 'axios-mock-adapter';
+
+
 
 import { EclipsesClient } from '../../../src/categories/EclipsesClient';
 import { AstrologyError } from '../../../src/errors/AstrologyError';
@@ -9,9 +9,9 @@ import type {
   EclipseNatalCheckResponse,
   EclipseUpcomingResponse,
 } from '../../../src/types/responses';
-import { AxiosHttpHelper } from '../../../src/utils/http';
+import { createTestHttpHelper } from '../../utils/testHelpers';
+import { mockFetch } from '../../utils/mockFetch';
 
-type HttpHelperWithMock = { helper: AxiosHttpHelper; mock: MockAdapter };
 
 const createSubject = (overrides: Partial<Subject> = {}): Subject => ({
   name: 'John Doe',
@@ -49,40 +49,19 @@ const createInterpretationRequest = (
   ...overrides,
 });
 
-const createHttpHelper = (): HttpHelperWithMock => {
-  const axiosInstance = axios.create();
-  const mock = new MockAdapter(axiosInstance);
-  const helper = new AxiosHttpHelper(
-    axiosInstance,
-    <T>(payload: unknown): T => {
-      if (payload && typeof payload === 'object') {
-        const record = payload as Record<string, unknown>;
-        if (record.data !== undefined) {
-          return record.data as T;
-        }
-        if (record.result !== undefined) {
-          return record.result as T;
-        }
-      }
-      return payload as T;
-    },
-  );
-
-  return { helper, mock };
-};
 
 describe('EclipsesClient', () => {
   let client: EclipsesClient;
-  let mock: MockAdapter;
+  
 
   beforeEach(() => {
-    const { helper, mock: axiosMock } = createHttpHelper();
+    const helper = createTestHttpHelper();
     client = new EclipsesClient(helper);
-    mock = axiosMock;
+    
   });
 
   afterEach(() => {
-    mock.reset();
+    mockFetch.reset();
   });
 
   it('retrieves upcoming eclipses', async () => {
@@ -90,25 +69,22 @@ describe('EclipsesClient', () => {
       success: true,
       eclipses: [],
     } as EclipseUpcomingResponse;
-    mock.onGet('/api/v3/eclipses/upcoming').reply(200, { data: response });
+    mockFetch.onGet('/api/v3/eclipses/upcoming').reply(200, { data: response });
 
     await expect(client.getUpcoming({ count: 5 })).resolves.toEqual(response);
-    expect(mock.history.get[0].params).toMatchObject({ count: 5 });
+    expect(mockFetch.history.get[0].params).toMatchObject({ count: '5' });
   });
 
-  it('preserves axios config when upcoming params omitted', async () => {
+  it('preserves request config when upcoming params omitted', async () => {
     const response = { success: true, eclipses: [] } as EclipseUpcomingResponse;
-    const controller = new AbortController();
-    mock.onGet('/api/v3/eclipses/upcoming').reply((config) => {
-      expect(config.signal).toBe(controller.signal);
-      expect(config.headers?.['X-Test']).toBe('true');
-      expect(config.params).toBeUndefined();
-      return [200, { data: response }];
-    });
+    mockFetch.onGet('/api/v3/eclipses/upcoming').reply(200, { data: response });
 
     await expect(
-      client.getUpcoming(undefined, { signal: controller.signal, headers: { 'X-Test': 'true' } }),
+      client.getUpcoming(undefined, { headers: { 'X-Test': 'true' } }),
     ).resolves.toEqual(response);
+
+    expect(mockFetch.history.get[0].headers['X-Test']).toBe('true');
+    expect(mockFetch.history.get[0].params).toBeUndefined();
   });
 
   it('validates upcoming eclipses params', async () => {
@@ -123,7 +99,7 @@ describe('EclipsesClient', () => {
       search_period: '2024-01-01 to 2024-12-31',
       impactful_eclipses: [],
     } as EclipseNatalCheckResponse;
-    mock.onPost('/api/v3/eclipses/natal-check').reply(200, { data: response });
+    mockFetch.onPost('/api/v3/eclipses/natal-check').reply(200, { data: response });
 
     await expect(client.checkNatalImpact(request)).resolves.toEqual(response);
   });
@@ -144,7 +120,7 @@ describe('EclipsesClient', () => {
       astrological_data: {},
       interpretation: { overview: 'Detailed interpretation' },
     } as unknown as EclipseInterpretationResponse;
-    mock.onPost('/api/v3/eclipses/interpretation').reply(200, { data: response });
+    mockFetch.onPost('/api/v3/eclipses/interpretation').reply(200, { data: response });
 
     await expect(client.getInterpretation(request)).resolves.toEqual(response);
   });

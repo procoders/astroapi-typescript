@@ -1,4 +1,4 @@
-import type { AxiosRequestConfig } from 'axios';
+import type { RequestConfig } from '../types/config';
 
 import {
   EclipseInterpretationRequest,
@@ -19,9 +19,9 @@ import {
 } from '../utils/validators';
 
 const mergeConfigWithParams = (
-  config: AxiosRequestConfig | undefined,
-  params?: Record<string, unknown>,
-): AxiosRequestConfig | undefined => {
+  config: RequestConfig | undefined,
+  params?: Record<string, string | number | boolean | null | undefined>,
+): RequestConfig | undefined => {
   if (!params || Object.keys(params).length === 0) {
     return config;
   }
@@ -44,16 +44,16 @@ export class EclipsesClient extends BaseCategoryClient {
 
   async getUpcoming(
     params?: UpcomingEclipsesParams,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<EclipseUpcomingResponse> {
     const normalizedParams = validateUpcomingEclipsesParams(params);
-    const requestConfig = mergeConfigWithParams(config, normalizedParams as Record<string, unknown>);
+    const requestConfig = mergeConfigWithParams(config, normalizedParams as Record<string, string | number | boolean | null | undefined>);
     return this.http.get<EclipseUpcomingResponse>(this.buildUrl('upcoming'), requestConfig);
   }
 
   async checkNatalImpact(
     request: EclipseNatalCheckRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<EclipseNatalCheckResponse> {
     validateEclipseNatalCheckRequest(request);
     return this.http.post<EclipseNatalCheckRequest, EclipseNatalCheckResponse>(
@@ -65,7 +65,7 @@ export class EclipsesClient extends BaseCategoryClient {
 
   async getInterpretation(
     request: EclipseInterpretationRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<EclipseInterpretationResponse> {
     validateEclipseInterpretationRequest(request);
     return this.http.post<EclipseInterpretationRequest, EclipseInterpretationResponse>(

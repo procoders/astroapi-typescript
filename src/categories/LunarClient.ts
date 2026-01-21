@@ -1,4 +1,4 @@
-import type { AxiosRequestConfig } from 'axios';
+import type { RequestConfig } from '../types/config';
 
 import {
   LunarCalendarParams,
@@ -25,10 +25,10 @@ import {
 } from '../utils/validators';
 import { BaseCategoryClient } from './BaseCategoryClient';
 
-const mergeConfigWithParams = <T extends object>(
-  config: AxiosRequestConfig | undefined,
-  params?: T,
-): AxiosRequestConfig | undefined => {
+const mergeConfigWithParams = (
+  config: RequestConfig | undefined,
+  params?: Record<string, string | number | boolean | null | undefined>,
+): RequestConfig | undefined => {
   if (!params || Object.keys(params).length === 0) {
     return config;
   }
@@ -51,7 +51,7 @@ export class LunarClient extends BaseCategoryClient {
 
   async getPhases(
     request: LunarPhasesRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<LunarPhasesResponse> {
     validateLunarPhasesRequest(request);
     return this.http.post<LunarPhasesRequest, LunarPhasesResponse>(
@@ -63,7 +63,7 @@ export class LunarClient extends BaseCategoryClient {
 
   async getEvents(
     request: LunarEventsRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<LunarEventsResponse> {
     validateLunarEventsRequest(request);
     return this.http.post<LunarEventsRequest, LunarEventsResponse>(
@@ -75,7 +75,7 @@ export class LunarClient extends BaseCategoryClient {
 
   async getMansions(
     request: LunarMansionsRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<LunarMansionsResponse> {
     validateLunarMansionsRequest(request);
     return this.http.post<LunarMansionsRequest, LunarMansionsResponse>(
@@ -87,7 +87,7 @@ export class LunarClient extends BaseCategoryClient {
 
   async getVoidOfCourse(
     request: VoidOfCourseRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<VoidOfCourseResponse> {
     validateVoidOfCourseRequest(request);
     return this.http.post<VoidOfCourseRequest, VoidOfCourseResponse>(
@@ -100,11 +100,14 @@ export class LunarClient extends BaseCategoryClient {
   async getCalendar(
     year: number,
     params?: LunarCalendarParams,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<LunarCalendarResponse> {
     validateLunarCalendarYear(year);
     const normalizedParams = validateLunarCalendarParams(params);
-    const requestConfig = mergeConfigWithParams(config, normalizedParams ?? undefined);
+    const requestConfig = mergeConfigWithParams(
+      config,
+      normalizedParams as Record<string, string | number | boolean | null | undefined> | undefined,
+    );
 
     return this.http.get<LunarCalendarResponse>(this.buildUrl('calendar', year), requestConfig);
   }

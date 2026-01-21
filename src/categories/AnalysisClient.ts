@@ -1,4 +1,4 @@
-import type { AxiosRequestConfig } from 'axios';
+import type { RequestConfig } from '../types/config';
 
 import {
   CompatibilityRequest,
@@ -58,7 +58,7 @@ export class AnalysisClient extends BaseCategoryClient {
 
   async getNatalReport(
     request: NatalReportRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<NatalReportResponse> {
     validateNatalReportRequest(request);
     return this.http.post<NatalReportRequest, NatalReportResponse>(
@@ -70,7 +70,7 @@ export class AnalysisClient extends BaseCategoryClient {
 
   async getSynastryReport(
     request: SynastryReportRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<SynastryReportResponse> {
     validateSynastryReportRequest(request);
     return this.http.post<SynastryReportRequest, SynastryReportResponse>(
@@ -82,7 +82,7 @@ export class AnalysisClient extends BaseCategoryClient {
 
   async getCompositeReport(
     request: CompositeReportRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<CompositeReportResponse> {
     validateCompositeReportRequest(request);
     return this.http.post<CompositeReportRequest, CompositeReportResponse>(
@@ -94,7 +94,7 @@ export class AnalysisClient extends BaseCategoryClient {
 
   async getCompatibilityAnalysis(
     request: CompatibilityRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<SynastryReportResponse> {
     validateCompatibilityRequest(request);
     return this.http.post<CompatibilityRequest, SynastryReportResponse>(
@@ -106,7 +106,7 @@ export class AnalysisClient extends BaseCategoryClient {
 
   async getCompatibilityScore(
     request: SynastryChartRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<RelationshipScoreResponse> {
     validateSynastryChartRequest(request, 'CompatibilityScoreRequest');
     return this.http.post<SynastryChartRequest, RelationshipScoreResponse>(
@@ -118,7 +118,7 @@ export class AnalysisClient extends BaseCategoryClient {
 
   async getRelationshipAnalysis(
     request: RelationshipAnalysisRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<SynastryReportResponse> {
     validateRelationshipAnalysisRequest(request);
     return this.http.post<RelationshipAnalysisRequest, SynastryReportResponse>(
@@ -130,7 +130,7 @@ export class AnalysisClient extends BaseCategoryClient {
 
   async getRelationshipScore(
     request: SynastryChartRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<RelationshipScoreResponse> {
     validateSynastryChartRequest(request, 'RelationshipScoreRequest');
     return this.http.post<SynastryChartRequest, RelationshipScoreResponse>(
@@ -142,7 +142,7 @@ export class AnalysisClient extends BaseCategoryClient {
 
   async getTransitReport(
     request: NatalTransitRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<NatalTransitReportResponse> {
     validateNatalTransitRequest(request);
     return this.http.post<NatalTransitRequest, NatalTransitReportResponse>(
@@ -154,7 +154,7 @@ export class AnalysisClient extends BaseCategoryClient {
 
   async getNatalTransitReport(
     request: NatalTransitRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<NatalTransitReportResponse> {
     validateNatalTransitRequest(request);
     return this.http.post<NatalTransitRequest, NatalTransitReportResponse>(
@@ -166,7 +166,7 @@ export class AnalysisClient extends BaseCategoryClient {
 
   async getProgressionReport(
     request: ProgressionReportRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<ProgressionReportResponse> {
     validateProgressionReportRequest(request);
     return this.http.post<ProgressionReportRequest, ProgressionReportResponse>(
@@ -178,7 +178,7 @@ export class AnalysisClient extends BaseCategoryClient {
 
   async getDirectionReport(
     request: DirectionReportRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<DirectionReportResponse> {
     validateDirectionReportRequest(request);
     return this.http.post<DirectionReportRequest, DirectionReportResponse>(
@@ -190,7 +190,7 @@ export class AnalysisClient extends BaseCategoryClient {
 
   async getLunarReturnReport(
     request: LunarReturnReportRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<LunarReturnReportResponse> {
     validateLunarReturnReportRequest(request);
     return this.http.post<LunarReturnReportRequest, LunarReturnReportResponse>(
@@ -202,7 +202,7 @@ export class AnalysisClient extends BaseCategoryClient {
 
   async getSolarReturnReport(
     request: SolarReturnReportRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<SolarReturnReportResponse> {
     validateSolarReturnReportRequest(request);
     return this.http.post<SolarReturnReportRequest, SolarReturnReportResponse>(
@@ -214,7 +214,7 @@ export class AnalysisClient extends BaseCategoryClient {
 
   async getLunarReturnTransitReport(
     request: LunarReturnTransitRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<LunarReturnTransitReportResponse> {
     validateLunarReturnTransitRequest(request);
     return this.http.post<LunarReturnTransitRequest, LunarReturnTransitReportResponse>(
@@ -226,7 +226,7 @@ export class AnalysisClient extends BaseCategoryClient {
 
   async getSolarReturnTransitReport(
     request: SolarReturnTransitRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<SolarReturnTransitReportResponse> {
     validateSolarReturnTransitRequest(request);
     return this.http.post<SolarReturnTransitRequest, SolarReturnTransitReportResponse>(
@@ -238,7 +238,7 @@ export class AnalysisClient extends BaseCategoryClient {
 
   async getCareerAnalysis(
     request: NatalReportRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<NatalReportResponse> {
     validateNatalReportRequest(request);
     return this.http.post<NatalReportRequest, NatalReportResponse>(
@@ -250,7 +250,7 @@ export class AnalysisClient extends BaseCategoryClient {
 
   async getHealthAnalysis(
     request: NatalReportRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<NatalReportResponse> {
     validateNatalReportRequest(request);
     return this.http.post<NatalReportRequest, NatalReportResponse>(
@@ -262,7 +262,7 @@ export class AnalysisClient extends BaseCategoryClient {
 
   async getKarmicAnalysis(
     request: NatalReportRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<NatalReportResponse> {
     validateNatalReportRequest(request);
     return this.http.post<NatalReportRequest, NatalReportResponse>(
@@ -274,7 +274,7 @@ export class AnalysisClient extends BaseCategoryClient {
 
   async getPsychologicalAnalysis(
     request: NatalReportRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<NatalReportResponse> {
     validateNatalReportRequest(request);
     return this.http.post<NatalReportRequest, NatalReportResponse>(
@@ -286,7 +286,7 @@ export class AnalysisClient extends BaseCategoryClient {
 
   async getSpiritualAnalysis(
     request: NatalReportRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<NatalReportResponse> {
     validateNatalReportRequest(request);
     return this.http.post<NatalReportRequest, NatalReportResponse>(
@@ -298,7 +298,7 @@ export class AnalysisClient extends BaseCategoryClient {
 
   async getPredictiveAnalysis(
     request: NatalTransitRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<NatalTransitReportResponse> {
     validateNatalTransitRequest(request);
     return this.http.post<NatalTransitRequest, NatalTransitReportResponse>(
@@ -310,7 +310,7 @@ export class AnalysisClient extends BaseCategoryClient {
 
   async getVocationalAnalysis(
     request: NatalReportRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<NatalReportResponse> {
     validateNatalReportRequest(request);
     return this.http.post<NatalReportRequest, NatalReportResponse>(
@@ -322,7 +322,7 @@ export class AnalysisClient extends BaseCategoryClient {
 
   async getLunarAnalysis(
     request: LunarAnalysisRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<LunarAnalysisResponse> {
     validateLunarAnalysisRequest(request);
     return this.http.post<LunarAnalysisRequest, LunarAnalysisResponse>(
@@ -334,7 +334,7 @@ export class AnalysisClient extends BaseCategoryClient {
 
   async getRelocationAnalysis(
     request: NatalReportRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<NatalReportResponse> {
     validateNatalReportRequest(request);
     return this.http.post<NatalReportRequest, NatalReportResponse>(

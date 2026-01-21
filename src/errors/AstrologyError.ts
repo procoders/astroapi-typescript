@@ -1,4 +1,4 @@
-import { AxiosError, isAxiosError } from 'axios';
+import { FetchError } from '../utils/fetchClient';
 
 export interface AstrologyErrorOptions {
   statusCode?: number;
@@ -25,12 +25,12 @@ export class AstrologyError extends Error {
     }
   }
 
-  static fromAxiosError(error: AxiosError): AstrologyError {
-    const statusCode = error.response?.status;
-    const code = error.code ?? (error.response?.data as { code?: string })?.code;
-    const details = error.response?.data ?? error.toJSON();
+  static fromFetchError(error: FetchError): AstrologyError {
+    const statusCode = error.status;
+    const code = error.code ?? (error.body as { code?: string })?.code;
+    const details = error.body;
     const message =
-      (error.response?.data as { message?: string })?.message ??
+      (error.body as { message?: string })?.message ??
       error.message ??
       'Unknown error occurred while communicating with Astrology API';
 
@@ -47,8 +47,8 @@ export class AstrologyError extends Error {
       return error;
     }
 
-    if (isAxiosError(error)) {
-      return AstrologyError.fromAxiosError(error);
+    if (error instanceof FetchError) {
+      return AstrologyError.fromFetchError(error);
     }
 
     if (error instanceof Error) {

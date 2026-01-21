@@ -1,5 +1,5 @@
-import axios from 'axios';
-import MockAdapter from 'axios-mock-adapter';
+
+
 
 import { ChartsClient } from '../../../src/categories/ChartsClient';
 import { AstrologyError } from '../../../src/errors/AstrologyError';
@@ -29,32 +29,8 @@ import type {
   SynastryChartResponse,
   TransitChartResponse,
 } from '../../../src/types/responses';
-import { AxiosHttpHelper } from '../../../src/utils/http';
-
-const createChartsClient = () => {
-  const axiosInstance = axios.create();
-  const mock = new MockAdapter(axiosInstance);
-  const helper = new AxiosHttpHelper(
-    axiosInstance,
-    <T>(payload: unknown): T => {
-      if (payload && typeof payload === 'object') {
-        const record = payload as Record<string, unknown>;
-        if (record.data !== undefined) {
-          return record.data as T;
-        }
-        if (record.result !== undefined) {
-          return record.result as T;
-        }
-      }
-      return payload as T;
-    },
-  );
-
-  return {
-    client: new ChartsClient(helper),
-    mock,
-  };
-};
+import { createTestHttpHelper } from '../../utils/testHelpers';
+import { mockFetch } from '../../utils/mockFetch';
 
 const createSubject = () => ({
   name: 'Test Subject',
@@ -71,16 +47,14 @@ const createSubject = () => ({
 
 describe('ChartsClient', () => {
   let client: ChartsClient;
-  let mock: MockAdapter;
 
   beforeEach(() => {
-    const factory = createChartsClient();
-    client = factory.client;
-    mock = factory.mock;
+    const helper = createTestHttpHelper();
+    client = new ChartsClient(helper);
   });
 
   afterEach(() => {
-    mock.reset();
+    mockFetch.reset();
   });
 
   it('retrieves natal chart', async () => {
@@ -94,7 +68,7 @@ describe('ChartsClient', () => {
       },
     };
 
-    mock.onPost('/api/v3/charts/natal').reply(200, { data: response });
+    mockFetch.onPost('/api/v3/charts/natal').reply(200, { data: response });
 
     await expect(client.getNatalChart(request)).resolves.toEqual(response);
   });
@@ -113,7 +87,7 @@ describe('ChartsClient', () => {
       },
     };
 
-    mock.onPost('/api/v3/charts/composite').reply(200, response);
+    mockFetch.onPost('/api/v3/charts/composite').reply(200, response);
 
     await expect(client.getCompositeChart(request)).resolves.toEqual(response);
   });
@@ -148,7 +122,7 @@ describe('ChartsClient', () => {
       },
     };
 
-    mock.onPost('/api/v3/charts/synastry').reply(200, { result: response });
+    mockFetch.onPost('/api/v3/charts/synastry').reply(200, { result: response });
 
     await expect(client.getSynastryChart(request)).resolves.toEqual(response);
   });
@@ -173,7 +147,7 @@ describe('ChartsClient', () => {
       },
     };
 
-    mock.onPost('/api/v3/charts/transit').reply(200, response);
+    mockFetch.onPost('/api/v3/charts/transit').reply(200, response);
 
     await expect(client.getTransitChart(request)).resolves.toEqual(response);
   });
@@ -207,7 +181,7 @@ describe('ChartsClient', () => {
       },
     };
 
-    mock.onPost('/api/v3/charts/solar-return').reply(200, { data: response });
+    mockFetch.onPost('/api/v3/charts/solar-return').reply(200, { data: response });
 
     await expect(client.getSolarReturnChart(request)).resolves.toEqual(response);
   });
@@ -235,7 +209,7 @@ describe('ChartsClient', () => {
       },
     };
 
-    mock.onPost('/api/v3/charts/lunar-return').reply(200, response);
+    mockFetch.onPost('/api/v3/charts/lunar-return').reply(200, response);
 
     await expect(client.getLunarReturnChart(request)).resolves.toEqual(response);
   });
@@ -263,7 +237,7 @@ describe('ChartsClient', () => {
       events: [],
     };
 
-    mock.onPost('/api/v3/charts/solar-return-transits').reply(200, { result: response });
+    mockFetch.onPost('/api/v3/charts/solar-return-transits').reply(200, { result: response });
 
     await expect(client.getSolarReturnTransits(request)).resolves.toEqual(response);
   });
@@ -296,7 +270,7 @@ describe('ChartsClient', () => {
       events: [],
     };
 
-    mock.onPost('/api/v3/charts/lunar-return-transits').reply(200, response);
+    mockFetch.onPost('/api/v3/charts/lunar-return-transits').reply(200, response);
 
     await expect(client.getLunarReturnTransits(request)).resolves.toEqual(response);
   });
@@ -316,7 +290,7 @@ describe('ChartsClient', () => {
       },
     };
 
-    mock.onPost('/api/v3/charts/progressions').reply(200, { data: response });
+    mockFetch.onPost('/api/v3/charts/progressions').reply(200, { data: response });
 
     await expect(client.getProgressions(request)).resolves.toEqual(response);
   });
@@ -346,7 +320,7 @@ describe('ChartsClient', () => {
       },
     };
 
-    mock.onPost('/api/v3/charts/directions').reply(200, response);
+    mockFetch.onPost('/api/v3/charts/directions').reply(200, response);
 
     await expect(client.getDirections(request)).resolves.toEqual(response);
   });
@@ -370,7 +344,7 @@ describe('ChartsClient', () => {
       transits: [],
     };
 
-    mock.onPost('/api/v3/charts/natal-transits').reply(200, { result: response });
+    mockFetch.onPost('/api/v3/charts/natal-transits').reply(200, { result: response });
 
     await expect(client.getNatalTransits(request)).resolves.toEqual(response);
   });

@@ -1,5 +1,5 @@
-import axios from 'axios';
-import MockAdapter from 'axios-mock-adapter';
+
+
 
 import { AstrocartographyClient } from '../../../src/categories/AstrocartographyClient';
 import { AstrologyError } from '../../../src/errors/AstrologyError';
@@ -32,9 +32,9 @@ import type {
   SearchLocationsResponse,
   SupportedFeaturesResponse,
 } from '../../../src/types/responses';
-import { AxiosHttpHelper } from '../../../src/utils/http';
+import { createTestHttpHelper } from '../../utils/testHelpers';
+import { mockFetch } from '../../utils/mockFetch';
 
-type HttpHelperWithMock = { helper: AxiosHttpHelper; mock: MockAdapter };
 
 const createSubject = (overrides: Partial<Subject> = {}): Subject => ({
   name: 'Test Subject',
@@ -169,40 +169,19 @@ const createRelocationChartRequest = (): RelocationChartRequest => ({
   options: createRelocationOptions(),
 });
 
-const createHttpHelper = (): HttpHelperWithMock => {
-  const axiosInstance = axios.create();
-  const mock = new MockAdapter(axiosInstance);
-  const helper = new AxiosHttpHelper(
-    axiosInstance,
-    <T>(payload: unknown): T => {
-      if (payload && typeof payload === 'object') {
-        const record = payload as Record<string, unknown>;
-        if (record.data !== undefined) {
-          return record.data as T;
-        }
-        if (record.result !== undefined) {
-          return record.result as T;
-        }
-      }
-      return payload as T;
-    },
-  );
-
-  return { helper, mock };
-};
 
 describe('AstrocartographyClient', () => {
   let client: AstrocartographyClient;
-  let mock: MockAdapter;
+  
 
   beforeEach(() => {
-    const { helper, mock: axiosMock } = createHttpHelper();
+    const helper = createTestHttpHelper();
     client = new AstrocartographyClient(helper);
-    mock = axiosMock;
+    
   });
 
   afterEach(() => {
-    mock.reset();
+    mockFetch.reset();
   });
 
   it('retrieves astrocartography lines', async () => {
@@ -223,7 +202,7 @@ describe('AstrocartographyClient', () => {
       birth_location: {},
       calculation_info: {},
     } as AstrocartographyLinesResponse;
-    mock.onPost('/api/v3/astrocartography/lines').reply(200, { data: response });
+    mockFetch.onPost('/api/v3/astrocartography/lines').reply(200, { data: response });
 
     await expect(client.getLines(request)).resolves.toEqual(response);
   });
@@ -250,7 +229,7 @@ describe('AstrocartographyClient', () => {
       legend_sections: [],
       metadata: {},
     } as AstrocartographyMapResponse;
-    mock.onPost('/api/v3/astrocartography/map').reply(200, { data: response });
+    mockFetch.onPost('/api/v3/astrocartography/map').reply(200, { data: response });
 
     await expect(client.generateMap(request)).resolves.toEqual(response);
   });
@@ -273,7 +252,7 @@ describe('AstrocartographyClient', () => {
       paran_data: {},
       interpretation: 'Paran interpretation',
     } as ParanMapResponse;
-    mock.onPost('/api/v3/astrocartography/paran-map').reply(200, { data: response });
+    mockFetch.onPost('/api/v3/astrocartography/paran-map').reply(200, { data: response });
 
     await expect(client.generateParanMap(request)).resolves.toEqual(response);
   });
@@ -299,7 +278,7 @@ describe('AstrocartographyClient', () => {
       summary: 'Location summary',
       detailed_analysis: {},
     } as LocationAnalysisResponse;
-    mock.onPost('/api/v3/astrocartography/location-analysis').reply(200, { data: response });
+    mockFetch.onPost('/api/v3/astrocartography/location-analysis').reply(200, { data: response });
 
     await expect(client.analyzeLocation(request)).resolves.toEqual(response);
   });
@@ -312,7 +291,7 @@ describe('AstrocartographyClient', () => {
       recommendations: {},
       summary: 'Comparison summary',
     } as CompareLocationsResponse;
-    mock.onPost('/api/v3/astrocartography/compare-locations').reply(200, { data: response });
+    mockFetch.onPost('/api/v3/astrocartography/compare-locations').reply(200, { data: response });
 
     await expect(client.compareLocations(request)).resolves.toEqual(response);
   });
@@ -333,7 +312,7 @@ describe('AstrocartographyClient', () => {
       power_zones: [],
       analysis_summary: 'Summary',
     } as PowerZonesResponse;
-    mock.onPost('/api/v3/astrocartography/power-zones').reply(200, { data: response });
+    mockFetch.onPost('/api/v3/astrocartography/power-zones').reply(200, { data: response });
 
     await expect(client.findPowerZones(request)).resolves.toEqual(response);
   });
@@ -346,7 +325,7 @@ describe('AstrocartographyClient', () => {
       search_metadata: {},
       recommendations: {},
     } as SearchLocationsResponse;
-    mock.onPost('/api/v3/astrocartography/search-locations').reply(200, { data: response });
+    mockFetch.onPost('/api/v3/astrocartography/search-locations').reply(200, { data: response });
 
     await expect(client.searchLocations(request)).resolves.toEqual(response);
   });
@@ -382,7 +361,7 @@ describe('AstrocartographyClient', () => {
       search_metadata: {},
       recommendations: {},
     } as SearchLocationsResponse;
-    mock.onPost('/api/v3/astrocartography/search-locations').reply(200, { data: response });
+    mockFetch.onPost('/api/v3/astrocartography/search-locations').reply(200, { data: response });
 
     await expect(client.searchLocations(request)).resolves.toEqual(response);
   });
@@ -397,7 +376,7 @@ describe('AstrocartographyClient', () => {
       location_analysis: {},
       comparison_summary: 'Relocation summary',
     } as RelocationChartResponse;
-    mock.onPost('/api/v3/astrocartography/relocation-chart').reply(200, { data: response });
+    mockFetch.onPost('/api/v3/astrocartography/relocation-chart').reply(200, { data: response });
 
     await expect(client.generateRelocationChart(request)).resolves.toEqual(response);
   });
@@ -420,7 +399,7 @@ describe('AstrocartographyClient', () => {
       line_types: {},
       interpretation_guide: {},
     } as LineMeaningsResponse;
-    mock.onGet('/api/v3/astrocartography/line-meanings').reply(200, { data: response });
+    mockFetch.onGet('/api/v3/astrocartography/line-meanings').reply(200, { data: response });
 
     await expect(client.getLineMeanings()).resolves.toEqual(response);
   });
@@ -432,7 +411,7 @@ describe('AstrocartographyClient', () => {
       limitations: {},
       version_info: { api_version: '3.1.0' },
     } as SupportedFeaturesResponse;
-    mock.onGet('/api/v3/astrocartography/supported-features').reply(200, { data: response });
+    mockFetch.onGet('/api/v3/astrocartography/supported-features').reply(200, { data: response });
 
     await expect(client.getSupportedFeatures()).resolves.toEqual(response);
   });

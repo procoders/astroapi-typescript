@@ -1,4 +1,4 @@
-import type { AxiosRequestConfig } from 'axios';
+import type { RequestConfig } from '../types/config';
 
 import type {
   GlobalDataRequest,
@@ -33,7 +33,7 @@ export class DataClient extends BaseCategoryClient {
 
   async getPositions(
     request: PlanetaryPositionsRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<PlanetaryPositionsResponse> {
     validateSubject(request.subject, 'PlanetaryPositionsRequest');
     return this.http.post<PlanetaryPositionsRequest, PlanetaryPositionsResponse>(
@@ -45,7 +45,7 @@ export class DataClient extends BaseCategoryClient {
 
   async getEnhancedPositions(
     request: PlanetaryPositionsRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<EnhancedPositionsResponse> {
     validateSubject(request.subject, 'EnhancedPositionsRequest');
     return this.http.post<PlanetaryPositionsRequest, EnhancedPositionsResponse>(
@@ -57,7 +57,7 @@ export class DataClient extends BaseCategoryClient {
 
   async getGlobalPositions(
     request: GlobalDataRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<GlobalPositionsResponse> {
     validateGlobalDataRequest(request, 'GlobalDataRequest');
     return this.http.post<GlobalDataRequest, GlobalPositionsResponse>(
@@ -69,7 +69,7 @@ export class DataClient extends BaseCategoryClient {
 
   async getAspects(
     request: PlanetaryPositionsRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<AspectsResponse> {
     validateSubject(request.subject, 'AspectsRequest');
     return this.http.post<PlanetaryPositionsRequest, AspectsResponse>(
@@ -81,7 +81,7 @@ export class DataClient extends BaseCategoryClient {
 
   async getEnhancedAspects(
     request: PlanetaryPositionsRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<EnhancedAspectsResponse> {
     validateSubject(request.subject, 'EnhancedAspectsRequest');
     return this.http.post<PlanetaryPositionsRequest, EnhancedAspectsResponse>(
@@ -93,7 +93,7 @@ export class DataClient extends BaseCategoryClient {
 
   async getHouseCusps(
     request: PlanetaryPositionsRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<HouseCuspsResponse> {
     validateSubject(request.subject, 'HouseCuspsRequest');
     return this.http.post<PlanetaryPositionsRequest, HouseCuspsResponse>(
@@ -105,7 +105,7 @@ export class DataClient extends BaseCategoryClient {
 
   async getLunarMetrics(
     request: LunarMetricsRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<LunarMetricsResponse> {
     validateDateTimeLocation(request.datetime_location, 'LunarMetricsRequest.datetime_location');
     return this.http.post<LunarMetricsRequest, LunarMetricsResponse>(
@@ -117,7 +117,7 @@ export class DataClient extends BaseCategoryClient {
 
   async getEnhancedLunarMetrics(
     request: LunarMetricsRequest,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<EnhancedLunarMetricsResponse> {
     validateDateTimeLocation(
       request.datetime_location,
@@ -130,7 +130,7 @@ export class DataClient extends BaseCategoryClient {
     );
   }
 
-  async getCurrentMoment(config?: AxiosRequestConfig): Promise<CurrentMomentResponse> {
+  async getCurrentMoment(config?: RequestConfig): Promise<CurrentMomentResponse> {
     return this.http.get<CurrentMomentResponse>(this.buildUrl('now'), config);
   }
 }

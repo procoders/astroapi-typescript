@@ -1,4 +1,4 @@
-import type { AxiosRequestConfig } from 'axios';
+import type { RequestConfig } from '../types/config';
 
 import {
   ActivePointsQuery,
@@ -43,10 +43,10 @@ export class GlossaryClient extends BaseCategoryClient {
 
   async getActivePoints(
     query?: ActivePointsQuery,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<ActivePointsResponse> {
     validateActivePointsQuery(query);
-    const requestConfig: AxiosRequestConfig = {
+    const requestConfig: RequestConfig = {
       ...config,
       params: {
         ...(config?.params ?? {}),
@@ -59,10 +59,10 @@ export class GlossaryClient extends BaseCategoryClient {
 
   async getPrimaryActivePoints(
     query?: PrimaryActivePointsQuery,
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<ActivePointsResponse> {
     validatePrimaryActivePointsQuery(query);
-    const requestConfig: AxiosRequestConfig = {
+    const requestConfig: RequestConfig = {
       ...config,
       params: {
         ...(config?.params ?? {}),
@@ -78,10 +78,10 @@ export class GlossaryClient extends BaseCategoryClient {
 
   async getCities(
     params: CitySearchParams = {},
-    config?: AxiosRequestConfig,
+    config?: RequestConfig,
   ): Promise<PaginatedResponse<CityDetails>> {
     validateCitySearchParams(params);
-    const requestConfig: AxiosRequestConfig = {
+    const requestConfig: RequestConfig = {
       ...config,
       params: {
         ...(config?.params ?? {}),
@@ -92,25 +92,25 @@ export class GlossaryClient extends BaseCategoryClient {
     return this.http.get<PaginatedResponse<CityDetails>>(this.buildUrl('cities'), requestConfig);
   }
 
-  async getCountries(config?: AxiosRequestConfig): Promise<CountriesResponse> {
+  async getCountries(config?: RequestConfig): Promise<CountriesResponse> {
     return this.http.get<CountriesResponse>(this.buildUrl('countries'), config);
   }
 
-  async getElements(config?: AxiosRequestConfig): Promise<ElementsResponse> {
+  async getElements(config?: RequestConfig): Promise<ElementsResponse> {
     return this.http.get<ElementsResponse>(this.buildUrl('elements'), config);
   }
 
-  async getFixedStars(config?: AxiosRequestConfig): Promise<FixedStarsResponse> {
+  async getFixedStars(config?: RequestConfig): Promise<FixedStarsResponse> {
     return this.http.get<FixedStarsResponse>(this.buildUrl('fixed-stars'), config);
   }
 
-  async getHouseSystems(config?: AxiosRequestConfig): Promise<HouseSystemsResponse> {
+  async getHouseSystems(config?: RequestConfig): Promise<HouseSystemsResponse> {
     return this.http.get<HouseSystemsResponse>(this.buildUrl('house-systems'), config);
   }
 
-  async getHouses(request?: HousesRequest, config?: AxiosRequestConfig): Promise<HousesResponse> {
+  async getHouses(request?: HousesRequest, config?: RequestConfig): Promise<HousesResponse> {
     validateHousesRequest(request);
-    const requestConfig: AxiosRequestConfig = {
+    const requestConfig: RequestConfig = {
       ...config,
       params: {
         ...(config?.params ?? {}),
@@ -121,9 +121,9 @@ export class GlossaryClient extends BaseCategoryClient {
     return this.http.get<HousesResponse>(this.buildUrl('houses'), requestConfig);
   }
 
-  async getKeywords(request?: KeywordsRequest, config?: AxiosRequestConfig): Promise<KeywordsResponse> {
+  async getKeywords(request?: KeywordsRequest, config?: RequestConfig): Promise<KeywordsResponse> {
     validateKeywordsRequest(request);
-    const requestConfig: AxiosRequestConfig = {
+    const requestConfig: RequestConfig = {
       ...config,
       params: {
         ...(config?.params ?? {}),
@@ -134,13 +134,13 @@ export class GlossaryClient extends BaseCategoryClient {
     return this.http.get<KeywordsResponse>(this.buildUrl('keywords'), requestConfig);
   }
 
-  async getLanguages(config?: AxiosRequestConfig): Promise<LanguagesResponse> {
+  async getLanguages(config?: RequestConfig): Promise<LanguagesResponse> {
     return this.http.get<LanguagesResponse>(this.buildUrl('languages'), config);
   }
 
-  async getLifeAreas(request?: LifeAreasRequest, config?: AxiosRequestConfig): Promise<LifeAreasResponse> {
+  async getLifeAreas(request?: LifeAreasRequest, config?: RequestConfig): Promise<LifeAreasResponse> {
     validateLifeAreasRequest(request);
-    const requestConfig: AxiosRequestConfig = {
+    const requestConfig: RequestConfig = {
       ...config,
       params: {
         ...(config?.params ?? {}),
@@ -151,11 +151,11 @@ export class GlossaryClient extends BaseCategoryClient {
     return this.http.get<LifeAreasResponse>(this.buildUrl('life-areas'), requestConfig);
   }
 
-  async getThemes(config?: AxiosRequestConfig): Promise<ThemesResponse> {
+  async getThemes(config?: RequestConfig): Promise<ThemesResponse> {
     return this.http.get<ThemesResponse>(this.buildUrl('themes'), config);
   }
 
-  async getZodiacTypes(config?: AxiosRequestConfig): Promise<ZodiacTypesResponse> {
+  async getZodiacTypes(config?: RequestConfig): Promise<ZodiacTypesResponse> {
     return this.http.get<ZodiacTypesResponse>(this.buildUrl('zodiac-types'), config);
   }
 }
