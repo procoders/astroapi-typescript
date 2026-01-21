@@ -10,7 +10,6 @@ import {
   AstrologyClientConfig,
   AstrologyLogger,
   DEFAULT_BASE_URL,
-  DEFAULT_RAPIDAPI_HOST,
   DEFAULT_RETRY_STATUS_CODES,
   DEFAULT_TIMEOUT_MS,
 } from './types';
@@ -56,7 +55,6 @@ export class AstrologyClient {
   private readonly axiosInstance: AxiosInstance;
   private readonly retryConfig: NormalizedRetryConfig;
   private readonly apiKey?: string;
-  private readonly rapidApiHost: string;
   private readonly debugEnabled: boolean;
   private readonly logger: AstrologyLogger;
   private readonly logPrefix = '[AstrologyClient]';
@@ -98,7 +96,6 @@ export class AstrologyClient {
     const baseURL = this.resolveBaseUrl(config.baseURL ?? config.baseUrl);
     const timeout = typeof config.timeout === 'number' ? config.timeout : DEFAULT_TIMEOUT_MS;
     this.apiKey = this.resolveApiKey(config.apiKey);
-    this.rapidApiHost = this.resolveRapidApiHost(config.rapidApiHost);
     this.debugEnabled = this.resolveDebugFlag(config.debug);
     this.logger = config.logger ?? console.log;
     this.retryConfig = {
@@ -154,12 +151,9 @@ export class AstrologyClient {
         set?: (name: string, value: string) => void;
       };
 
-      // Set RapidAPI host header
-      this.setHeaderIfMissing(headers, 'x-rapidapi-host', this.rapidApiHost);
-
-      // Set RapidAPI key header
+      // Set Authorization header with Bearer token
       if (this.apiKey) {
-        this.setHeaderIfMissing(headers, 'x-rapidapi-key', this.apiKey);
+        this.setHeaderIfMissing(headers, 'Authorization', `Bearer ${this.apiKey}`);
       }
 
       this.log('Outgoing request', {
@@ -272,17 +266,8 @@ export class AstrologyClient {
     if (fromConfig) {
       return fromConfig;
     }
-    const fromEnv = process.env.RAPIDAPI_KEY?.trim();
+    const fromEnv = process.env.ASTROLOGY_API_KEY?.trim();
     return fromEnv || undefined;
-  }
-
-  private resolveRapidApiHost(host?: string): string {
-    const fromConfig = host?.trim();
-    if (fromConfig) {
-      return fromConfig;
-    }
-    const fromEnv = process.env.RAPIDAPI_HOST?.trim();
-    return fromEnv || DEFAULT_RAPIDAPI_HOST;
   }
 
   private resolveBaseUrl(baseURL?: string): string {

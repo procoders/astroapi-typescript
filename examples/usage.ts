@@ -10,7 +10,7 @@ import type {
 
 export async function runExample(): Promise<void> {
   const client = new AstrologyClient({
-    apiKey: process.env.RAPIDAPI_KEY,
+    apiKey: process.env.ASTROLOGY_API_KEY,
     retry: { attempts: 2, delayMs: 250 },
     debug: process.env.ASTROLOGY_DEBUG === 'true',
   });

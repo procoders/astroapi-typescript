@@ -19,9 +19,9 @@
 - Keep code DRY, KISS, and single-responsibility. Extract helpers if logic repeats.
 - Comments, docs, and logs MUST be written in English.
 - When adding HTTP endpoints ensure:
-  - URL assembled via RapidAPI base URL (default from `DEFAULT_RAPIDAPI_HOST`)
-  - RapidAPI headers are set (`x-rapidapi-key`, `x-rapidapi-host`)
-  - Environment variables: `RAPIDAPI_KEY`, `RAPIDAPI_HOST`, `ASTROLOGY_API_BASE_URL`
+  - URL assembled via default base URL (`https://api.astrology-api.io`)
+  - Authorization header is set (`Authorization: Bearer <token>`)
+  - Environment variables: `ASTROLOGY_API_KEY`, `ASTROLOGY_API_BASE_URL`
   - Payload validated via `validators.ts`.
 - For additions touching API schema, consult `docs-openapi.json` first.
 - Update or add Vitest suites and maintain 100% coverage. Use axios-mock-adapter for HTTP mocks.

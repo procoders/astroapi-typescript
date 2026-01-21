@@ -5,7 +5,7 @@
 [![npm downloads](https://img.shields.io/npm/dm/@procoders/astrology-api-client.svg)](https://www.npmjs.com/package/@procoders/astrology-api-client)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Type-safe Node.js client for the [Astrology API v3.0.0](https://api.astrology-api.io/rapidoc). The package ships as an ESM build, exposes a modular architecture with dedicated sub-clients per endpoint family, and enforces 100 % test coverage. Publish-ready as `@procoders/astrology-api-client`.
+Type-safe Node.js client for the [Astrology API v3.2.10](https://api.astrology-api.io/rapidoc). The package ships as an ESM build, exposes a modular architecture with dedicated sub-clients per endpoint family, and enforces 100 % test coverage. Publish-ready as `@procoders/astrology-api-client`.
 
 ### Highlights
 - Axios-powered HTTP layer with retry/backoff, header normalization, and response unwrapping
@@ -34,9 +34,8 @@ const { AstrologyClient } = require('@procoders/astrology-api-client');
 ### Environment Variables
 | Variable | Required | Description |
 | --- | --- | --- |
-| `RAPIDAPI_KEY` | **required** | Your RapidAPI key for authentication |
-| `RAPIDAPI_HOST` | optional | Override the default RapidAPI host |
-| `ASTROLOGY_API_BASE_URL` | optional | Override the full API base URL |
+| `ASTROLOGY_API_KEY` | **required** | Your API key for Bearer token authentication |
+| `ASTROLOGY_API_BASE_URL` | optional | Override the full API base URL (default: https://api.astrology-api.io) |
 | `ASTROLOGY_DEBUG` | optional | Set to `true` to enable debug logging |
 | `RUN_ASTROLOGY_EXAMPLE` | optional | Set to `true` to execute `examples/usage.ts` |
 
@@ -45,7 +44,7 @@ const { AstrologyClient } = require('@procoders/astrology-api-client');
 import { AstrologyClient } from '@procoders/astrology-api-client';
 
 const client = new AstrologyClient({
-  apiKey: 'your-rapidapi-key-here', // or set RAPIDAPI_KEY env var
+  apiKey: 'your-api-key-here', // or set ASTROLOGY_API_KEY env var
   retry: { attempts: 2, delayMs: 250 },
   debug: process.env.ASTROLOGY_DEBUG === 'true',
 });

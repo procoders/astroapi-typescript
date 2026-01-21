@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-TypeScript SDK (`@procoders/astrology-api-client`) for the Astrology API v3.0.0. The OpenAPI spec is cached locally in `docs-openapi.json`.
+TypeScript SDK (`@procoders/astrology-api-client`) for the Astrology API v3.2.10. The OpenAPI spec is cached locally in `docs-openapi.json`.
 
 - **Runtime**: Node.js 22+ (ES modules)
 - **HTTP layer**: Axios with request/response interceptors, automatic retry with backoff
@@ -37,7 +37,7 @@ npx vitest run -t "should retry"
 ### Client Structure
 
 `AstrologyClient` ([src/client.ts](src/client.ts)) is the entry point. It creates an Axios instance with interceptors for:
-- API key injection (`X-API-Key` header)
+- Bearer token authentication (`Authorization: Bearer <token>` header)
 - Debug logging
 - Automatic retry on 429/500/502/503/504 and network errors
 - Response unwrapping (extracts `data` or `result` from response payloads)
@@ -102,7 +102,6 @@ Each API family has a dedicated client in [src/categories/](src/categories/) tha
 
 | Variable | Description |
 |----------|-------------|
-| `RAPIDAPI_KEY` | RapidAPI key (auto-injected if not passed to constructor) |
-| `RAPIDAPI_HOST` | Override the default RapidAPI host |
-| `ASTROLOGY_API_BASE_URL` | Override the full API base URL |
+| `ASTROLOGY_API_KEY` | API key for Bearer token authentication (auto-injected if not passed to constructor) |
+| `ASTROLOGY_API_BASE_URL` | Override the full API base URL (default: https://api.astrology-api.io) |
 | `ASTROLOGY_DEBUG` | Set to `true` to enable debug logging |

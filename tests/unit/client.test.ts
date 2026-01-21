@@ -5,7 +5,6 @@ import {
   AstrologyClient,
   AstrologyError,
   DEFAULT_BASE_URL,
-  DEFAULT_RAPIDAPI_HOST,
   DEFAULT_RETRY_STATUS_CODES,
 } from '../../src';
 import {
@@ -68,8 +67,7 @@ const buildAxiosError = (status: number, message: string, config?: AxiosRequestC
   );
 };
 
-const ORIGINAL_ENV_API_KEY = process.env.RAPIDAPI_KEY;
-const ORIGINAL_ENV_HOST = process.env.RAPIDAPI_HOST;
+const ORIGINAL_ENV_API_KEY = process.env.ASTROLOGY_API_KEY;
 const ORIGINAL_DEBUG_ENV = process.env.ASTROLOGY_DEBUG;
 
 describe('AstrologyClient', () => {
@@ -78,14 +76,9 @@ describe('AstrologyClient', () => {
 
   beforeEach(() => {
     if (ORIGINAL_ENV_API_KEY === undefined) {
-      delete process.env.RAPIDAPI_KEY;
+      delete process.env.ASTROLOGY_API_KEY;
     } else {
-      process.env.RAPIDAPI_KEY = ORIGINAL_ENV_API_KEY;
-    }
-    if (ORIGINAL_ENV_HOST === undefined) {
-      delete process.env.RAPIDAPI_HOST;
-    } else {
-      process.env.RAPIDAPI_HOST = ORIGINAL_ENV_HOST;
+      process.env.ASTROLOGY_API_KEY = ORIGINAL_ENV_API_KEY;
     }
     if (ORIGINAL_DEBUG_ENV === undefined) {
       delete process.env.ASTROLOGY_DEBUG;
@@ -105,14 +98,9 @@ describe('AstrologyClient', () => {
   afterEach(() => {
     mock.reset();
     if (ORIGINAL_ENV_API_KEY === undefined) {
-      delete process.env.RAPIDAPI_KEY;
+      delete process.env.ASTROLOGY_API_KEY;
     } else {
-      process.env.RAPIDAPI_KEY = ORIGINAL_ENV_API_KEY;
-    }
-    if (ORIGINAL_ENV_HOST === undefined) {
-      delete process.env.RAPIDAPI_HOST;
-    } else {
-      process.env.RAPIDAPI_HOST = ORIGINAL_ENV_HOST;
+      process.env.ASTROLOGY_API_KEY = ORIGINAL_ENV_API_KEY;
     }
     if (ORIGINAL_DEBUG_ENV === undefined) {
       delete process.env.ASTROLOGY_DEBUG;
@@ -123,14 +111,9 @@ describe('AstrologyClient', () => {
 
   afterAll(() => {
     if (ORIGINAL_ENV_API_KEY === undefined) {
-      delete process.env.RAPIDAPI_KEY;
+      delete process.env.ASTROLOGY_API_KEY;
     } else {
-      process.env.RAPIDAPI_KEY = ORIGINAL_ENV_API_KEY;
-    }
-    if (ORIGINAL_ENV_HOST === undefined) {
-      delete process.env.RAPIDAPI_HOST;
-    } else {
-      process.env.RAPIDAPI_HOST = ORIGINAL_ENV_HOST;
+      process.env.ASTROLOGY_API_KEY = ORIGINAL_ENV_API_KEY;
     }
     if (ORIGINAL_DEBUG_ENV === undefined) {
       delete process.env.ASTROLOGY_DEBUG;
@@ -146,10 +129,9 @@ describe('AstrologyClient', () => {
     },
   });
 
-  it('sends RapidAPI headers and returns planetary positions', async () => {
+  it('sends Authorization Bearer header and returns planetary positions', async () => {
     mock.onPost('/api/v3/data/positions').reply((config) => {
-      expect(config.headers?.['x-rapidapi-key']).toBe('test-key');
-      expect(config.headers?.['x-rapidapi-host']).toBeDefined();
+      expect(config.headers?.['Authorization']).toBe('Bearer test-key');
       const payload = JSON.parse(config.data) as PlanetaryPositionsRequest;
       expect(payload.subject.birth_data.year).toBe(1990);
       return [200, mockPlanetaryPositionsResponse];
@@ -400,7 +382,7 @@ describe('AstrologyClient', () => {
       },
       axiosOptions: {
         headers: {
-          'x-rapidapi-key': 'pre-set',
+          Authorization: 'Bearer pre-set',
           'X-Custom-Header': 'value',
         },
       },
@@ -410,7 +392,7 @@ describe('AstrologyClient', () => {
     customMock.onPost('/api/v3/data/positions').reply((config) => {
       expect(config.baseURL).toBe('https://custom.example.com');
       expect(config.timeout).toBe(5000);
-      expect(config.headers?.['x-rapidapi-key']).toBe('pre-set');
+      expect(config.headers?.['Authorization']).toBe('Bearer pre-set');
       expect(config.headers?.['X-Custom-Header']).toBe('value');
       return [200, mockPlanetaryPositionsResponse];
     });
@@ -419,34 +401,34 @@ describe('AstrologyClient', () => {
   });
 
   it('uses environment API key when config omits one', async () => {
-    const original = process.env.RAPIDAPI_KEY;
-    process.env.RAPIDAPI_KEY = 'env-key';
+    const original = process.env.ASTROLOGY_API_KEY;
+    process.env.ASTROLOGY_API_KEY = 'env-key';
     const envClient = new AstrologyClient({
       retry: { attempts: 0 },
     });
     const envMock = new MockAdapter(envClient.httpClient);
     envMock.onPost('/api/v3/data/positions').reply((config) => {
-      expect(config.headers?.['x-rapidapi-key']).toBe('env-key');
+      expect(config.headers?.['Authorization']).toBe('Bearer env-key');
       return [200, mockPlanetaryPositionsResponse];
     });
 
     await envClient.data.getPositions(createPositionsRequest());
     envMock.reset();
     if (original === undefined) {
-      delete process.env.RAPIDAPI_KEY;
+      delete process.env.ASTROLOGY_API_KEY;
     } else {
-      process.env.RAPIDAPI_KEY = original;
+      process.env.ASTROLOGY_API_KEY = original;
     }
   });
 
-  it('does not set API key header when no key provided', async () => {
-    delete process.env.RAPIDAPI_KEY;
+  it('does not set Authorization header when no key provided', async () => {
+    delete process.env.ASTROLOGY_API_KEY;
     const anonymousClient = new AstrologyClient({
       retry: { attempts: 0 },
     });
     const anonymousMock = new MockAdapter(anonymousClient.httpClient);
     anonymousMock.onPost('/api/v3/data/positions').reply((config) => {
-      expect(config.headers?.['x-rapidapi-key']).toBeUndefined();
+      expect(config.headers?.['Authorization']).toBeUndefined();
       return [200, mockPlanetaryPositionsResponse];
     });
 
@@ -559,26 +541,6 @@ describe('AstrologyClient', () => {
     }
   });
 
-  it('uses custom rapidApiHost when provided in config', async () => {
-    const customHostClient = new AstrologyClient({
-      apiKey: 'test-key',
-      rapidApiHost: 'custom-host.example.com',
-      retry: { attempts: 0 },
-    });
-    const customHostMock = new MockAdapter(customHostClient.httpClient);
-    customHostMock.onPost('/api/v3/data/positions').reply((config) => {
-      expect(config.headers?.['x-rapidapi-host']).toBe('custom-host.example.com');
-      return [200, mockPlanetaryPositionsResponse];
-    });
-
-    await customHostClient.data.getPositions(createPositionsRequest());
-  });
-
-  it('falls back to default RapidAPI host when not provided', () => {
-    const host = (client as any).resolveRapidApiHost(undefined);
-    expect(host).toBe(DEFAULT_RAPIDAPI_HOST);
-  });
-
   it('clamps retry values to non-negative numbers', () => {
     expect((client as any).clampToNonNegative(undefined, 5)).toBe(5);
     expect((client as any).clampToNonNegative(NaN, 5)).toBe(5);
@@ -595,8 +557,7 @@ describe('AstrologyClient', () => {
   it('initializes missing headers inside request interceptor', () => {
     const interceptor = client.httpClient.interceptors.request.handlers[0].fulfilled!;
     const result = interceptor({} as any);
-    expect(result.headers['x-rapidapi-key']).toBe('test-key');
-    expect(result.headers['x-rapidapi-host']).toBeDefined();
+    expect(result.headers['Authorization']).toBe('Bearer test-key');
   });
 
   it('delegates to headers.set when available', () => {
@@ -604,8 +565,7 @@ describe('AstrologyClient', () => {
     const has = vi.fn().mockReturnValue(false);
     const interceptor = client.httpClient.interceptors.request.handlers[0].fulfilled!;
     interceptor({ headers: { set, has } } as any);
-    expect(set).toHaveBeenCalledWith('x-rapidapi-host', expect.any(String));
-    expect(set).toHaveBeenCalledWith('x-rapidapi-key', 'test-key');
+    expect(set).toHaveBeenCalledWith('Authorization', 'Bearer test-key');
   });
 });
 
